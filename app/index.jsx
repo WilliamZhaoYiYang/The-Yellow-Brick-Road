@@ -1,14 +1,39 @@
-import { StyleSheet, Text, View, Alert, Button } from 'react-native'
+import { StyleSheet, Text, View, Alert, Button, Animated } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import { Pedometer } from 'expo-sensors'
 
 const Home = () => {
-    const [steps, setSteps] = useState(0);
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
     const [lastUpdate, setLastUpdate] = useState('Never');
     const initialStepCount = useRef(null);
 
+    const animatedSteps = useRef(new Animated.Value(0)).current;
+    const displaySteps = useRef(0);
+    const [displayValue, setDisplayValue] = useState(0);
+
+    const animateToValue = (newValue) => {
+        Animated.timing(animatedSteps, {
+            toValue: newValue,
+            duration: 500,
+            useNativeDriver: false,
+        }).start();
+    }
+
+    // Update step count with animation
+    useEffect(() =>{
+        const listener = animatedSteps.addListener(({ value }) => {
+            const rounded = Math.round(value);
+            if (rounded != displaySteps.current){
+                displaySteps.current = rounded;
+                setDisplayValue(rounded);
+            }
+        });
+        return () => animatedSteps.removeListener(listener);
+    }, []);
+
     useEffect(() => {
+        let subscription = null;
+
         const setupPedometer = async () => {
             try {
                 const isAvailable = await Pedometer.isAvailableAsync();
@@ -36,13 +61,10 @@ const Home = () => {
                     
                     // Calculate steps since app opened
                     const stepsSinceStart = result.steps - initialStepCount.current;
-                    setSteps(stepsSinceStart);
+                    animateToValue(stepsSinceStart);
                     setLastUpdate(new Date().toLocaleTimeString());
                 });
 
-                return () => {
-                    subscription && subscription.remove();
-                };
             } catch (error) {
                 console.error('Pedometer error:', error);
                 Alert.alert('Error', error.message);
@@ -50,16 +72,21 @@ const Home = () => {
         };
 
         setupPedometer();
+
+        return () => {
+            subscription && subscription.remove();
+        }
     }, []);
 
     const resetSteps = () => {
         initialStepCount.current = null;
-        setSteps(0);
+        animatedSteps.setValue(0);
+        setDisplayValue(0);
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{steps}</Text>
+            <Text style={styles.title}>{displayValue}</Text>
             <Text style={styles.info}>Steps Since App Opened</Text>
             <Text style={styles.small}>Available: {isPedometerAvailable}</Text>
             <Text style={styles.small}>Last Update: {lastUpdate}</Text>
