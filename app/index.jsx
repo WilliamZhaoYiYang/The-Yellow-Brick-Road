@@ -1,20 +1,21 @@
 import { StyleSheet, Pressable, Text, View, Alert, Button, Animated } from 'react-native'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { Pedometer } from 'expo-sensors'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 
 const STORAGE_KEY = 'savedStepCount';
+const JOURNEY_KEY = 'selectedJourney';
 
 const Home = () => {
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
-    const [lastUpdate, setLastUpdate] = useState('Never');
+    const [selectedJourney, setSelectedJourney] = useState(null);
     const initialStepCount = useRef(null);
     const savedStepOffset = useRef(0);
 
     const animatedSteps = useRef(new Animated.Value(0)).current;
-    const displaySteps = useRef(0);
     const [displayValue, setDisplayValue] = useState(0);
+    const [stepsLeft, setStepsLeft] = useState(0);
 
     const animateToValue = (newValue) => {
         Animated.timing(animatedSteps, {
@@ -24,12 +25,22 @@ const Home = () => {
         }).start();
     }
 
+    // Load selected journey
+    useFocusEffect(
+        useCallback(() => {
+            const loadJourney = async () => {
+                const saved = await AsyncStorage.getItem(JOURNEY_KEY);
+                if (saved) setSelectedJourney(JSON.parse(saved));
+            };
+            loadJourney();
+        }, [])
+    );
+
     // Update step count with animation
     useEffect(() =>{
         const listener = animatedSteps.addListener(({ value }) => {
             const rounded = Math.round(value);
-            if (rounded !== displaySteps.current){
-                displaySteps.current = rounded;
+            if (rounded !== displayValue){
                 setDisplayValue(rounded);
             }
         });
@@ -37,21 +48,31 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
+        if (selectedJourney) {
+            setStepsLeft(selectedJourney.totalSteps - displayValue);
+        }
+    }, [displayValue, selectedJourney]);
+
+    useEffect(() => {
         let subscription = null;
 
         const setupPedometer = async () => {
             try {
-                // Load saved steps from prev session
+                // Load saved steps if any exists
                 const saved = await AsyncStorage.getItem(STORAGE_KEY);
-                if (saved !== null){
+                if (saved !== null) {
                     savedStepOffset.current = parseInt(saved, 10);
                     animateToValue(savedStepOffset.current);
-                    displaySteps.current = savedStepOffset.current;
                 }
+
+                // for testing purposes
+                // const testSteps = 1000000;
+                // savedStepOffset.current = testSteps;
+                // animateToValue(testSteps);
 
                 const isAvailable = await Pedometer.isAvailableAsync();
                 setIsPedometerAvailable(isAvailable ? 'Yes' : 'No');
-                
+
                 if (!isAvailable) {
                     Alert.alert('Pedometer not available', 'This device does not support step counting');
                     return;
@@ -63,21 +84,14 @@ const Home = () => {
                     return;
                 }
 
+                // Pedometer detects walking
                 subscription = Pedometer.watchStepCount(result => {
-                    console.log('Total steps from sensor:', result.steps);
-                    
-                    // Set baseline on first update
                     if (initialStepCount.current === null) {
                         initialStepCount.current = result.steps;
                     }
-                    
-                    // Steps this session + steps from previous sessions
                     const stepsSinceStart = result.steps - initialStepCount.current;
                     const totalSteps = savedStepOffset.current + stepsSinceStart;
-
                     animateToValue(totalSteps);
-                    setLastUpdate(new Date().toLocaleTimeString());
-
                     AsyncStorage.setItem(STORAGE_KEY, totalSteps.toString());
                 });
 
@@ -88,31 +102,35 @@ const Home = () => {
         };
 
         setupPedometer();
-
-        return () => {
-            subscription && subscription.remove();
-        }
+        return () => { subscription && subscription.remove(); };
     }, []);
 
     const resetSteps = () => {
         initialStepCount.current = null;
         savedStepOffset.current = 0;
         AsyncStorage.removeItem(STORAGE_KEY);
-        animateToValue(0);
-    };
-
-    const selectJourney = () => {
-        router.push('/journey');
+        animatedSteps.stopAnimation();
+        animatedSteps.setValue(0);
+        setDisplayValue(0);
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>{displayValue}</Text>
-            <Text style={styles.info}>Steps Into Your Journey</Text>
-            <Text style={styles.small}>Available: {isPedometerAvailable}</Text>
-            <Text style={styles.small}>Last Update: {lastUpdate}</Text>
+            <Text 
+                style={styles.title}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+            >
+                {selectedJourney ? displayValue.toLocaleString() : '🧭'}
+            </Text>
+            <Text style={styles.info}>{selectedJourney
+                                        ? 'Steps Into Your Journey'
+                                        : 'Please pick a journey before starting!'}
+            </Text>
             <Text style={styles.instruction}>
-                Walk around with your phone to count steps
+                {selectedJourney
+                    ? `${stepsLeft.toLocaleString()} steps to ${selectedJourney.goal}`
+                    : 'Walk around with your phone to count steps'}
             </Text>
 
             <View style={styles.buttonContainer}>
@@ -120,7 +138,7 @@ const Home = () => {
                     <Text style={styles.buttonText}>Reset Counter</Text>
                 </Pressable>
 
-                <Pressable style={styles.button} onPress={selectJourney}>
+                <Pressable style={styles.button} onPress={() => router.push('/journey')}>
                     <Text style={styles.buttonText}>Select Journey</Text>
                 </Pressable>
             </View>
@@ -143,20 +161,15 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 72,
         marginBottom: 10,
+        textAlign: 'center',
     },
     info: {
         fontSize: 24,
         marginBottom: 20,
-        color: '#666',
-    },
-    small: {
-        fontSize: 14,
-        color: '#999',
-        marginTop: 5,
+        textAlign: 'center',
     },
     instruction: {
         fontSize: 16,
-        color: '#666',
         marginTop: 30,
         textAlign: 'center',
     },
