@@ -1,4 +1,4 @@
-import { StyleSheet, Pressable, Text, View, Alert, Button, Animated } from 'react-native'
+import { StyleSheet, Pressable, Text, View, Alert, Animated, FlatList, Modal, Dimensions, Image } from 'react-native'
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { Pedometer } from 'expo-sensors'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -6,6 +6,86 @@ import { router, useFocusEffect } from 'expo-router';
 
 const STORAGE_KEY = 'savedStepCount';
 const JOURNEY_KEY = 'selectedJourney';
+const { width } = Dimensions.get('window');
+
+const BANNER_HEIGHT = 200;
+
+const BannerCarousel = ({ items }) => {
+    const [selectedItem, setSelectedItem] = useState(null);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const flatListRef = useRef(null);
+
+    const onViewableItemsChanged = useRef(({ viewableItems }) => {
+    if (viewableItems.length > 0) {
+        setActiveIndex(viewableItems[0].index ?? 0);
+    }
+    }).current;     
+
+    if (!items || items.length === 0) return null;
+
+    return (
+        <>
+            <View style={styles.bannerWrapper}>
+                <FlatList
+                    ref={flatListRef}
+                    data={items}
+                    keyExtractor={(item) => item.id}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    onViewableItemsChanged={onViewableItemsChanged}
+                    viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+                    renderItem={({ item }) => (
+                        <Pressable
+                            style={styles.bannerCard}
+                            onPress={() => setSelectedItem(item)}
+                        >
+                            <Image
+                                source={{ uri: item.image }}
+                                style={styles.bannerImage}
+                                resizeMode="cover"
+                            />
+                            <Text style={styles.bannerTitle}>{item.title}</Text>
+                        </Pressable>
+                    )}
+                />
+                {items.length > 1 && (
+                    <View style={styles.dotsRow}>
+                        {items.map((_, i) => (
+                            <View
+                                key={i}
+                                style={[styles.dot, i === activeIndex && styles.dotActive]}
+                            />
+                        ))}
+                    </View>
+                )}
+            </View>
+
+            {/* Popup Modal */}
+            <Modal
+                visible={!!selectedItem}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setSelectedItem(null)}
+            >
+                <Pressable style={styles.modalBackdrop} onPress={() => setSelectedItem(null)}>
+                    <Pressable style={styles.modalCard} onPress={() => {}}>
+                        <Image
+                            source={{ uri: selectedItem?.image }}
+                            style={styles.modalImage}
+                            resizeMode="cover"
+                        />
+                        <Text style={styles.modalTitle}>{selectedItem?.title}</Text>
+                        <Text style={styles.modalDetail}>{selectedItem?.detail}</Text>
+                        <Pressable style={styles.modalClose} onPress={() => setSelectedItem(null)}>
+                            <Text style={styles.modalCloseText}>Close</Text>
+                        </Pressable>
+                    </Pressable>
+                </Pressable>
+            </Modal>
+        </>
+    );
+};
 
 const Home = () => {
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
@@ -114,24 +194,35 @@ const Home = () => {
         setDisplayValue(0);
     };
 
+    const unlockedBannerItems = selectedJourney
+        ? selectedJourney.bannerItems.filter(item => displayValue >= item.unlockedAfterSteps)
+        : [];
+
     return (
         <View style={styles.container}>
-            <Text 
-                style={styles.title}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-            >
-                {selectedJourney ? displayValue.toLocaleString() : '🧭'}
-            </Text>
-            <Text style={styles.info}>{selectedJourney
-                                        ? 'Steps Into Your Journey'
-                                        : 'Please pick a journey before starting!'}
-            </Text>
-            <Text style={styles.instruction}>
-                {selectedJourney
-                    ? `${stepsLeft.toLocaleString()} steps to ${selectedJourney.goal}`
-                    : 'Walk around with your phone to count steps'}
-            </Text>
+            {/* Banner at top */}
+        <View style={styles.bannerArea}>
+            <BannerCarousel items={unlockedBannerItems} />
+        </View>
+
+            {/* Main content */}
+            <View style={styles.mainContent}>
+                <Text
+                    style={styles.title}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                >
+                    {selectedJourney ? displayValue.toLocaleString() : '🧭'}
+                </Text>
+                <Text style={styles.info}>
+                    {selectedJourney ? 'Steps Into Your Journey' : 'Please pick a journey before starting!'}
+                </Text>
+                <Text style={styles.instruction}>
+                    {selectedJourney
+                        ? `${stepsLeft.toLocaleString()} steps to ${selectedJourney.goal}`
+                        : 'Walk around with your phone to count steps'}
+                </Text>
+            </View>
 
             <View style={styles.buttonContainer}>
                 <Pressable style={styles.button} onPress={resetSteps}>
@@ -151,11 +242,81 @@ export default Home
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        backgroundColor: '#77d8f5',
+    },
+
+    // ── Banner ──
+    bannerArea: {
+        paddingTop: 55,
+    },
+    bannerWrapper: {
+        width: '100%',
+    },
+    bannerCard: {
+        width: width,
+        paddingHorizontal: 16,
+    },
+    bannerImage: {
+        width: '100%',
+        height: BANNER_HEIGHT - 36,
+        borderRadius: 14,
+    },
+    bannerTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+        marginTop: 6,
+        color: '#222',
+    },
+
+    // ── Modal ──
+    modalBackdrop: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    modalCard: {
+        backgroundColor: 'white',
+        borderRadius: 20,
+        overflow: 'hidden',
+        width: '100%',
+    },
+    modalImage: {
+        width: '100%',
+        height: 200,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        margin: 16,
+        marginBottom: 8,
+    },
+    modalDetail: {
+        fontSize: 15,
+        color: '#555',
+        marginHorizontal: 16,
+        lineHeight: 22,
+    },
+    modalClose: {
+        margin: 16,
+        backgroundColor: '#e9d8ab',
+        paddingVertical: 12,
+        borderRadius: 12,
+        alignItems: 'center',
+    },
+    modalCloseText: {
+        fontWeight: '600',
+        fontSize: 15,
+    },
+
+    // ── Main content ──
+    mainContent: {
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'white',
         padding: 20,
-        backgroundColor: '#77d8f5',
     },
     title: {
         fontWeight: 'bold',
@@ -173,13 +334,14 @@ const styles = StyleSheet.create({
         marginTop: 30,
         textAlign: 'center',
     },
+
+    // ── Buttons ──
     buttonContainer: {
-        position: 'absolute',
-        bottom: 70,
         flexDirection: 'row',
         width: '100%',
         paddingHorizontal: 20,
-        gap: 30, // Space between buttons
+        paddingBottom: 50,
+        gap: 30,
     },
     button: {
         flex: 1,
@@ -191,8 +353,8 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     buttonText: {
-        color: 'black', 
-        fontSize: 16, 
-        fontWeight: '600', 
-    }
+        color: 'black',
+        fontSize: 16,
+        fontWeight: '600',
+    },
 })

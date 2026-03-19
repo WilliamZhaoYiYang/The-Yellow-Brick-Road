@@ -1,45 +1,11 @@
 import { StyleSheet, Text, View, Pressable, ScrollView, Image, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { JOURNEYS } from '../data/journeys';
 
 const { width } = Dimensions.get('window');
 const CARD_MARGIN = 20;
 const CARD_WIDTH = width - CARD_MARGIN * 2;
-
-
-export const JOURNEYS = [
-    {
-        id: '1',
-        title: 'The Yellow Brick Road',
-        image: 'https://picsum.photos/seed/yellowbrick/800/450',
-        totalSteps: 250000,
-        goal: 'The Emerald City',
-    },
-    {
-        id: '2',
-        title: 'The Shire to Mordor',
-        image: 'https://picsum.photos/seed/mordor/800/450',
-        totalSteps: 4000000,
-    },
-    {
-        id: '3',
-        title: 'Route 66',
-        image: 'https://picsum.photos/seed/route66/800/450',
-        totalSteps: 1400000,
-    },
-    {
-        id: '4',
-        title: 'The Camino de Santiago',
-        image: 'https://picsum.photos/seed/camino/800/450',
-        totalSteps: 900000,
-    },
-    {
-        id: '5',
-        title: 'The Appalachian Trail',
-        image: 'https://picsum.photos/seed/appalachian/800/450',
-        totalSteps: 5000000,
-    },
-];
 
 const Journey = () => {
     const router = useRouter();
