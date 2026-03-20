@@ -5,6 +5,8 @@ export const JOURNEYS = [
         image: 'https://picsum.photos/seed/yellowbrick/800/450',
         totalSteps: 250000,
         goal: 'The Emerald City',
+        description: 'A magical journey through the land of Oz. The road is paved and mostly flat, winding through poppy fields, enchanted forests, and friendly villages.' +
+        'Expect whimsical encounters around every corner — but watch out for flying monkeys. Suitable for all fitness levels.',
         bannerItems: [
             {
                 id: 'ybr-1',
