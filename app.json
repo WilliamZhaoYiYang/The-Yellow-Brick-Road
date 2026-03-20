@@ -1,8 +1,8 @@
 {
   "expo": {
-    "scheme": "TheYellowBrickRoad",
-    "name": "The-Yellow-Brick-Road",
-    "slug": "The-Yellow-Brick-Road",
+    "scheme": "YellowBrickRoad",
+    "name": "Yellow Brick Road",
+    "slug": "Yellow-Brick-Road",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
