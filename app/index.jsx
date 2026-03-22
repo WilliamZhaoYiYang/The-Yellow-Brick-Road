@@ -10,23 +10,37 @@ const { width } = Dimensions.get('window');
 
 const BANNER_HEIGHT = 200;
 
-const MAX_DOTS = 5;
+const DOT_SIZE = 8;
+const DOT_GAP = 6;
+const DOT_ACTIVE_WIDTH = 20;
+const MAX_DOTS = 8;
 
 const BannerCarousel = ({ items }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [scrollProgress, setScrollProgress] = useState(0);
     const flatListRef = useRef(null);
-
-    const onViewableItemsChanged = useRef(({ viewableItems }) => {
-        if (viewableItems.length > 0) {
-            setActiveIndex(viewableItems[0].index ?? 0);
-        }
-    }).current;     
 
     if (!items || items.length === 0) return null;
 
-    const dotCount = Math.min(items.length, MAX_DOTS);
-    const activeDotIndex = Math.min(activeIndex, dotCount - 1);
+    const totalItems = items.length;
+
+    const getWindowStart = (progress) => {
+        if (totalItems <= MAX_DOTS) return 0;
+        // Only start shifting window once scroll goes past the last visible dot
+        return Math.max(0, Math.min(
+            Math.floor(Math.max(0, progress - (MAX_DOTS - 1))),
+            totalItems - MAX_DOTS
+        ));
+    };
+
+    const windowStart = getWindowStart(scrollProgress);
+
+    const handleScroll = (e) => {
+        const x = e.nativeEvent.contentOffset.x;
+        const progress = x / width;
+        setScrollProgress(progress);
+    };
 
     return (
         <>
@@ -38,8 +52,12 @@ const BannerCarousel = ({ items }) => {
                     horizontal
                     pagingEnabled
                     showsHorizontalScrollIndicator={false}
-                    onViewableItemsChanged={onViewableItemsChanged}
-                    viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+                    onScroll={handleScroll}
+                    scrollEventThrottle={16}
+                    onMomentumScrollEnd={(e) => {
+                        const index = Math.round(e.nativeEvent.contentOffset.x / width);
+                        setActiveIndex(index);
+                    }}
                     renderItem={({ item }) => (
                         <Pressable
                             style={styles.bannerCard}
@@ -55,14 +73,24 @@ const BannerCarousel = ({ items }) => {
                     )}
                 />
 
-                {/* Dots — always shown, capped at MAX_DOTS */}
+                {/* Dots */}
                 <View style={styles.dotsRow}>
-                    {Array.from({ length: dotCount }, (_, i) => (
-                        <View
-                            key={i}
-                            style={[styles.dot, i === activeDotIndex && styles.dotActive]}
-                        />
-                    ))}
+                    {Array.from({ length: Math.min(totalItems, MAX_DOTS) }, (_, dotPos) => {
+                        const itemIndex = windowStart + dotPos;
+
+                        const distance = Math.abs(scrollProgress - itemIndex);
+                        const activity = Math.max(0, 1 - distance);
+
+                        const dotWidth = DOT_SIZE + (DOT_ACTIVE_WIDTH - DOT_SIZE) * activity;
+                        const opacity = 0.25 + 0.75 * activity;
+
+                        return (
+                            <View
+                                key={itemIndex}
+                                style={[styles.dot, { width: dotWidth, opacity }]}
+                            />
+                        );
+                    })}
                 </View>
             </View>
 
@@ -151,7 +179,7 @@ const Home = () => {
                 }
 
                 // for testing purposes
-                // const testSteps = 1000000;
+                // const testSteps = 10000000;
                 // savedStepOffset.current = testSteps;
                 // animateToValue(testSteps);
 
@@ -367,14 +395,15 @@ const styles = StyleSheet.create({
     dotsRow: {
         flexDirection: 'row',
         justifyContent: 'center',
+        alignItems: 'center',
         marginTop: 8,
-        gap: 6,
+        gap: DOT_GAP,
+        height: 12,
     },
     dot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        height: DOT_SIZE,
+        borderRadius: DOT_SIZE / 2,
+        backgroundColor: '#222',
     },
     dotActive: {
         backgroundColor: '#222',
