@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Pressable, ScrollView, Image, Dimensions, Modal } from 'react-native'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { JOURNEYS } from '../data/journeys';
@@ -8,9 +8,25 @@ const { width } = Dimensions.get('window');
 const CARD_MARGIN = 20;
 const CARD_WIDTH = width - CARD_MARGIN * 2;
 
+const STORAGE_KEY = 'savedStepCount';
+const JOURNEY_KEY = 'selectedJourney';
+
 const Journey = () => {
     const router = useRouter();
     const [pendingJourney, setPendingJourney] = useState(null);
+    const [currentJourney, setCurrentJourney] = useState(null);
+    const [currentSteps, setCurrentSteps] = useState(0);
+
+    // Load existing journey and steps on mount
+    useEffect(() => {
+        const loadCurrent = async () => {
+            const savedJourney = await AsyncStorage.getItem(JOURNEY_KEY);
+            const savedSteps = await AsyncStorage.getItem(STORAGE_KEY);
+            if (savedJourney) setCurrentJourney(JSON.parse(savedJourney));
+            if (savedSteps) setCurrentSteps(parseInt(savedSteps, 10));
+        };
+        loadCurrent();
+    }, []);
 
     // First tap shows popup
     const handleCardPress = (journey) => {
@@ -18,6 +34,10 @@ const Journey = () => {
     };
 
     const handleConfirm = async () => {
+        // Reset steps if switching journeys
+        if (currentJourney && currentJourney.id !== pendingJourney.id) {
+            await AsyncStorage.removeItem(STORAGE_KEY);
+        }
         await AsyncStorage.setItem('selectedJourney', JSON.stringify(pendingJourney));
         setPendingJourney(null);
         router.back();
@@ -28,6 +48,11 @@ const Journey = () => {
         if (steps >= 1000) return `${Math.round(steps / 1000)}k steps`;
         return `${steps} steps`;
     };
+
+    // Check if a journey has already been selected
+    const isSwitching = currentJourney
+        && currentJourney.id !== pendingJourney?.id
+        && currentSteps > 0;
 
     return (
         <View style={styles.container}>
@@ -52,9 +77,16 @@ const Journey = () => {
                             <Text style={styles.cardTitle}>{journey.title}</Text>
                             <Text style={styles.cardSteps}>{formatSteps(journey.totalSteps)}</Text>
                         </View>
+                        {/* Badge on current active journey */}
+                        {currentJourney?.id === journey.id && (
+                            <View style={styles.activeBadge}>
+                                <Text style={styles.activeBadgeText}>Current</Text>
+                            </View>
+                        )}
                     </Pressable>
                 ))}
             </ScrollView>
+
             <Pressable style={styles.backButton} onPress={() => router.back()}>
                 <Text style={styles.backButtonText}>Go Back</Text>
             </Pressable>
@@ -74,6 +106,18 @@ const Journey = () => {
                             resizeMode="cover"
                         />
                         <View style={styles.modalBody}>
+
+                            {/* Warning banner if switching journeys */}
+                            {isSwitching && (
+                                <View style={styles.warningBanner}>
+                                    <Text style={styles.warningText}>
+                                        ⚠️ You're currently on{' '}
+                                        <Text style={styles.warningBold}>{currentJourney.title}</Text>
+                                        {' '}with {currentSteps.toLocaleString()} steps. Starting a new journey will reset your progress to 0.
+                                    </Text>
+                                </View>
+                            )}
+
                             <Text style={styles.modalTitle}>{pendingJourney?.title}</Text>
                             <Text style={styles.modalSteps}>
                                 🥾 {pendingJourney ? formatSteps(pendingJourney.totalSteps) : ''} to {pendingJourney?.goal}
@@ -87,10 +131,12 @@ const Journey = () => {
                                     <Text style={styles.modalBtnText}>Cancel</Text>
                                 </Pressable>
                                 <Pressable
-                                    style={[styles.modalBtn, styles.modalBtnConfirm]}
+                                    style={[styles.modalBtn, isSwitching ? styles.modalBtnWarning : styles.modalBtnConfirm]}
                                     onPress={handleConfirm}
                                 >
-                                    <Text style={[styles.modalBtnText, { color: 'white' }]}>Start Journey</Text>
+                                    <Text style={[styles.modalBtnText, { color: 'white' }]}>
+                                        {isSwitching ? 'Reset & Start' : 'Start Journey'}
+                                    </Text>
                                 </Pressable>
                             </View>
                         </View>
@@ -102,6 +148,7 @@ const Journey = () => {
 }
 
 export default Journey
+
 
 const styles = StyleSheet.create({
     container: {
@@ -118,7 +165,7 @@ const styles = StyleSheet.create({
     scrollContent: {
         paddingHorizontal: CARD_MARGIN,
         paddingTop: 10,
-        paddingBottom: 100, // space for back button
+        paddingBottom: 100,
         gap: 20,
     },
     card: {
@@ -138,7 +185,7 @@ const styles = StyleSheet.create({
     },
     thumbnail: {
         width: CARD_WIDTH,
-        height: CARD_WIDTH * (9 / 16), // 16:9 aspect ratio
+        height: CARD_WIDTH * (9 / 16),
     },
     cardFooter: {
         flexDirection: 'row',
@@ -150,14 +197,28 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 18,
         fontWeight: '600',
-        padding: 14,
         color: '#222',
+        flex: 1,
     },
     cardSteps: {
         fontSize: 13,
         fontWeight: '500',
         color: '#888',
         marginLeft: 8,
+    },
+    activeBadge: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: '#4a9e6b',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 20,
+    },
+    activeBadgeText: {
+        color: 'white',
+        fontSize: 12,
+        fontWeight: '700',
     },
     backButton: {
         position: 'absolute',
@@ -195,6 +256,22 @@ const styles = StyleSheet.create({
     modalBody: {
         padding: 18,
     },
+    warningBanner: {
+        backgroundColor: '#fff3cd',
+        borderLeftWidth: 4,
+        borderLeftColor: '#f0a500',
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 14,
+    },
+    warningText: {
+        fontSize: 13,
+        color: '#7a5000',
+        lineHeight: 20,
+    },
+    warningBold: {
+        fontWeight: '700',
+    },
     modalTitle: {
         fontSize: 22,
         fontWeight: '700',
@@ -228,6 +305,9 @@ const styles = StyleSheet.create({
     },
     modalBtnConfirm: {
         backgroundColor: '#4a9e6b',
+    },
+    modalBtnWarning: {
+        backgroundColor: '#e05c2a',
     },
     modalBtnText: {
         fontSize: 15,
