@@ -87,6 +87,13 @@ export const JOURNEYS = [
                 image: 'https://picsum.photos/seed/lotr5/600/300',
                 detail: 'The desolate wastes of Mordor surround you. Every step here is a feat of will. Mount Doom burns in the distance.',
             },
+            {
+                id: 'lotr-6',
+                unlockedAfterSteps: 3000000,
+                title: 'The Plains of Gorgoroth',
+                image: 'https://picsum.photos/seed/lotr5/600/300',
+                detail: 'The desolate wastes of Mordor surround you. Every step here is a feat of will. Mount Doom burns in the distance.',
+            },
         ],
     },
     {

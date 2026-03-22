@@ -10,18 +10,23 @@ const { width } = Dimensions.get('window');
 
 const BANNER_HEIGHT = 200;
 
+const MAX_DOTS = 5;
+
 const BannerCarousel = ({ items }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [activeIndex, setActiveIndex] = useState(0);
     const flatListRef = useRef(null);
 
     const onViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-        setActiveIndex(viewableItems[0].index ?? 0);
-    }
+        if (viewableItems.length > 0) {
+            setActiveIndex(viewableItems[0].index ?? 0);
+        }
     }).current;     
 
     if (!items || items.length === 0) return null;
+
+    const dotCount = Math.min(items.length, MAX_DOTS);
+    const activeDotIndex = Math.min(activeIndex, dotCount - 1);
 
     return (
         <>
@@ -49,16 +54,16 @@ const BannerCarousel = ({ items }) => {
                         </Pressable>
                     )}
                 />
-                {items.length > 1 && (
-                    <View style={styles.dotsRow}>
-                        {items.map((_, i) => (
-                            <View
-                                key={i}
-                                style={[styles.dot, i === activeIndex && styles.dotActive]}
-                            />
-                        ))}
-                    </View>
-                )}
+
+                {/* Dots — always shown, capped at MAX_DOTS */}
+                <View style={styles.dotsRow}>
+                    {Array.from({ length: dotCount }, (_, i) => (
+                        <View
+                            key={i}
+                            style={[styles.dot, i === activeDotIndex && styles.dotActive]}
+                        />
+                    ))}
+                </View>
             </View>
 
             {/* Popup Modal */}
@@ -245,7 +250,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#77d8f5',
     },
 
-    // ── Banner ──
+    // Banner
     bannerArea: {
         paddingTop: 55,
     },
@@ -269,7 +274,7 @@ const styles = StyleSheet.create({
         color: '#222',
     },
 
-    // ── Modal ──
+    // Modal
     modalBackdrop: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
@@ -311,7 +316,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
 
-    // ── Main content ──
+    // Main content
     mainContent: {
         flex: 1,
         alignItems: 'center',
@@ -335,7 +340,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
 
-    // ── Buttons ──
+    // Buttons
     buttonContainer: {
         flexDirection: 'row',
         width: '100%',
@@ -356,5 +361,23 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 16,
         fontWeight: '600',
+    },
+
+    // Carousel
+    dotsRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 8,
+        gap: 6,
+    },
+    dot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+    },
+    dotActive: {
+        backgroundColor: '#222',
+        width: 18,
     },
 })
