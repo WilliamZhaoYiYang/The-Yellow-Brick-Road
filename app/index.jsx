@@ -125,6 +125,7 @@ const Home = () => {
     const [selectedJourney, setSelectedJourney] = useState(null);
     const initialStepCount = useRef(null);
     const savedStepOffset = useRef(0);
+    const selectedJourneyRef = useRef(null);
 
     const animatedSteps = useRef(new Animated.Value(0)).current;
     const [displayValue, setDisplayValue] = useState(0);
@@ -143,7 +144,12 @@ const Home = () => {
         useCallback(() => {
             const loadJourney = async () => {
                 const saved = await AsyncStorage.getItem(JOURNEY_KEY);
-                if (saved) setSelectedJourney(JSON.parse(saved));
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setSelectedJourney(parsed);
+                    selectedJourneyRef.current = parsed;
+                    initialStepCount.current = null;
+                }
             };
             loadJourney();
         }, [])
@@ -199,6 +205,8 @@ const Home = () => {
 
                 // Pedometer detects walking
                 subscription = Pedometer.watchStepCount(result => {
+                    if (!selectedJourneyRef.current) return;
+                    
                     if (initialStepCount.current === null) {
                         initialStepCount.current = result.steps;
                     }
