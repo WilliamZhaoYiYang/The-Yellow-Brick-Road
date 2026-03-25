@@ -216,6 +216,7 @@ const Home = () => {
                     const totalSteps = savedStepOffset.current + stepsSinceStart;
                     animateToValue(totalSteps);
                     AsyncStorage.setItem(STORAGE_KEY, totalSteps.toString());
+                    saveDailySteps(totalSteps);
                 });
 
             } catch (error) {
@@ -227,6 +228,14 @@ const Home = () => {
         setupPedometer();
         return () => { subscription && subscription.remove(); };
     }, []);
+
+    const saveDailySteps = async (totalSteps) => {
+        const today = new Date().toISOString().split('T')[0];
+        const raw = await AsyncStorage.getItem('dailySteps');
+        const dailySteps = raw ? JSON.parse(raw) : {};
+        dailySteps[today] = totalSteps;
+        await AsyncStorage.setItem('dailySteps', JSON.stringify(dailySteps));
+    };
 
     const resetSteps = () => {
         initialStepCount.current = null;
