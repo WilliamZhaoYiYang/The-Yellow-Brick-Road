@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { JOURNEYS } from '../data/journeys';
 import styles from './styles/journey.styles';
+import Card from '../components/card';
 
 const STORAGE_KEY = 'savedStepCount';
 const JOURNEY_KEY = 'selectedJourney';
@@ -59,29 +60,28 @@ const Journey = () => {
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {JOURNEYS.map((journey) => (
-                    <Pressable
-                        key={journey.id}
-                        style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-                        onPress={() => handleCardPress(journey)}
-                    >
-                        <Image
-                            source={{ uri: journey.image }}
-                            style={styles.thumbnail}
-                            resizeMode="cover"
-                        />
-                        <View style={styles.cardFooter}>
-                            <Text style={styles.cardTitle}>{journey.title}</Text>
-                            <Text style={styles.cardSteps}>{formatSteps(journey.totalSteps)}</Text>
+            {JOURNEYS.map((journey) => (
+                <Card
+                    key={journey.id}
+                    onPress={() => handleCardPress(journey)}
+                    style={styles.journeyCard}
+                >
+                    <Image
+                        source={{ uri: journey.image }}
+                        style={styles.thumbnail}
+                        resizeMode="cover"
+                    />
+                    <View style={styles.cardFooter}>
+                        <Text style={styles.cardTitle}>{journey.title}</Text>
+                        <Text style={styles.cardSteps}>{formatSteps(journey.totalSteps)}</Text>
+                    </View>
+                    {currentJourney?.id === journey.id && (
+                        <View style={styles.activeBadge}>
+                            <Text style={styles.activeBadgeText}>Current</Text>
                         </View>
-                        {/* Badge on current active journey */}
-                        {currentJourney?.id === journey.id && (
-                            <View style={styles.activeBadge}>
-                                <Text style={styles.activeBadgeText}>Current</Text>
-                            </View>
-                        )}
-                    </Pressable>
-                ))}
+                    )}
+                </Card>
+            ))}
             </ScrollView>
 
             <Pressable style={styles.backButton} onPress={() => router.back()}>

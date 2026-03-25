@@ -22,20 +22,8 @@ const styles = StyleSheet.create({
         paddingBottom: 100,
         gap: 20,
     },
-    card: {
+    journeyCard: {
         width: CARD_WIDTH,
-        borderRadius: 16,
-        overflow: 'hidden',
-        backgroundColor: 'white',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-    },
-    cardPressed: {
-        opacity: 0.85,
-        transform: [{ scale: 0.98 }],
     },
     thumbnail: {
         width: CARD_WIDTH,

@@ -1,10 +1,3 @@
-// TODO
-// Move style to seperate stylesheet
-
-
-// LATER
-// Add statistics screen showing various information like total steps, steps today, km walked today etc.
-// User can create their own custom journeys
 
 import { StyleSheet, Pressable, Text, View, Alert, Animated, FlatList, Modal, Dimensions, Image } from 'react-native'
 import React, { useEffect, useState, useRef, useCallback } from 'react'
@@ -275,8 +268,8 @@ const Home = () => {
             </View>
 
             <View style={styles.buttonContainer}>
-                <Pressable style={styles.button} onPress={resetSteps}>
-                    <Text style={styles.buttonText}>Reset Counter</Text>
+                <Pressable style={styles.button} onPress={() => router.push('/stats')}>
+                    <Text style={styles.buttonText}>Show Stats</Text>
                 </Pressable>
 
                 <Pressable style={styles.button} onPress={() => router.push('/journey')}>
