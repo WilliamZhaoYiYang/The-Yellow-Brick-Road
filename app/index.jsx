@@ -1,12 +1,10 @@
-
 import { StyleSheet, Pressable, Text, View, Alert, Animated, FlatList, Modal, Dimensions, Image } from 'react-native'
 import React, { useEffect, useState, useRef, useCallback } from 'react'
-import { Pedometer } from 'expo-sensors'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router, useFocusEffect } from 'expo-router';
 import styles from './styles/index.styles';
+import { usePedometerContext } from '../context/PedometerContext'; // <-- Import your new context here
 
-const STORAGE_KEY = 'savedStepCount';
 const JOURNEY_KEY = 'selectedJourney';
 const { width } = Dimensions.get('window');
 
@@ -123,10 +121,9 @@ const BannerCarousel = ({ items }) => {
 };
 
 const Home = () => {
-    const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
+    const { globalSteps } = usePedometerContext();
+
     const [selectedJourney, setSelectedJourney] = useState(null);
-    const initialStepCount = useRef(null);
-    const savedStepOffset = useRef(0);
     const selectedJourneyRef = useRef(null);
 
     const animatedSteps = useRef(new Animated.Value(0)).current;
@@ -141,7 +138,7 @@ const Home = () => {
         }).start();
     }
 
-    // Load selected journey
+    // Load selected journey when screen comes into focus
     useFocusEffect(
         useCallback(() => {
             const loadJourney = async () => {
@@ -150,14 +147,13 @@ const Home = () => {
                     const parsed = JSON.parse(saved);
                     setSelectedJourney(parsed);
                     selectedJourneyRef.current = parsed;
-                    initialStepCount.current = null;
                 }
             };
             loadJourney();
         }, [])
     );
 
-    // Update step count with animation
+    // Sync UI display value with the animation progress
     useEffect(() =>{
         const listener = animatedSteps.addListener(({ value }) => {
             const rounded = Math.round(value);
@@ -169,82 +165,20 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
+        if (globalSteps === 0) {
+            animatedSteps.setValue(0); 
+            setDisplayValue(0);
+        } else {
+            animateToValue(globalSteps);
+        }
+    }, [globalSteps]);
+
+    // Update steps left for the journey
+    useEffect(() => {
         if (selectedJourney) {
-            setStepsLeft(selectedJourney.totalSteps - displayValue);
+            setStepsLeft(Math.max(0, selectedJourney.totalSteps - displayValue));
         }
     }, [displayValue, selectedJourney]);
-
-    useEffect(() => {
-        let subscription = null;
-
-        const setupPedometer = async () => {
-            try {
-                // Load saved steps if any exists
-                const saved = await AsyncStorage.getItem(STORAGE_KEY);
-                if (saved !== null) {
-                    savedStepOffset.current = parseInt(saved, 10);
-                    animateToValue(savedStepOffset.current);
-                }
-
-                // for testing purposes
-                // const testSteps = 10000000;
-                // savedStepOffset.current = testSteps;
-                // animateToValue(testSteps);
-
-                const isAvailable = await Pedometer.isAvailableAsync();
-                setIsPedometerAvailable(isAvailable ? 'Yes' : 'No');
-
-                if (!isAvailable) {
-                    Alert.alert('Pedometer not available', 'This device does not support step counting');
-                    return;
-                }
-
-                const { status } = await Pedometer.requestPermissionsAsync();
-                if (status !== 'granted') {
-                    Alert.alert('Permission denied', 'Need permission to access step counter');
-                    return;
-                }
-
-                // Pedometer detects walking
-                subscription = Pedometer.watchStepCount(result => {
-                    if (!selectedJourneyRef.current) return;
-                    
-                    if (initialStepCount.current === null) {
-                        initialStepCount.current = result.steps;
-                    }
-                    const stepsSinceStart = result.steps - initialStepCount.current;
-                    const totalSteps = savedStepOffset.current + stepsSinceStart;
-                    animateToValue(totalSteps);
-                    AsyncStorage.setItem(STORAGE_KEY, totalSteps.toString());
-                    saveDailySteps(totalSteps);
-                });
-
-            } catch (error) {
-                console.error('Pedometer error:', error);
-                Alert.alert('Error', error.message);
-            }
-        };
-
-        setupPedometer();
-        return () => { subscription && subscription.remove(); };
-    }, []);
-
-    const saveDailySteps = async (totalSteps) => {
-        const today = new Date().toISOString().split('T')[0];
-        const raw = await AsyncStorage.getItem('dailySteps');
-        const dailySteps = raw ? JSON.parse(raw) : {};
-        dailySteps[today] = totalSteps;
-        await AsyncStorage.setItem('dailySteps', JSON.stringify(dailySteps));
-    };
-
-    const resetSteps = () => {
-        initialStepCount.current = null;
-        savedStepOffset.current = 0;
-        AsyncStorage.removeItem(STORAGE_KEY);
-        animatedSteps.stopAnimation();
-        animatedSteps.setValue(0);
-        setDisplayValue(0);
-    };
 
     const unlockedBannerItems = selectedJourney
         ? selectedJourney.bannerItems.filter(item => displayValue >= item.unlockedAfterSteps)
@@ -253,9 +187,9 @@ const Home = () => {
     return (
         <View style={styles.container}>
             {/* Banner at top */}
-        <View style={styles.bannerArea}>
-            <BannerCarousel items={unlockedBannerItems} />
-        </View>
+            <View style={styles.bannerArea}>
+                <BannerCarousel items={unlockedBannerItems} />
+            </View>
 
             {/* Main content */}
             <View style={styles.mainContent}>
@@ -289,4 +223,4 @@ const Home = () => {
     )
 }
 
-export default Home
+export default Home;

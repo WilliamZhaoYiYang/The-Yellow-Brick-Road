@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { JOURNEYS } from '../data/journeys';
 import styles from './styles/journey.styles';
 import Card from '../components/card';
+import { usePedometerContext } from '../context/PedometerContext';
 
 const STORAGE_KEY = 'savedStepCount';
 const JOURNEY_KEY = 'selectedJourney';
@@ -14,6 +15,7 @@ const Journey = () => {
     const [pendingJourney, setPendingJourney] = useState(null);
     const [currentJourney, setCurrentJourney] = useState(null);
     const [currentSteps, setCurrentSteps] = useState(0);
+    const { resetSteps } = usePedometerContext();
 
     // Load existing journey and steps on mount
     useEffect(() => {
@@ -26,16 +28,15 @@ const Journey = () => {
         loadCurrent();
     }, []);
 
-    // First tap shows popup
     const handleCardPress = (journey) => {
         setPendingJourney(journey);
     };
 
     const handleConfirm = async () => {
-        // Reset steps if switching journeys
         if (currentJourney && currentJourney.id !== pendingJourney.id) {
-            await AsyncStorage.removeItem(STORAGE_KEY);
+            await resetSteps(); // clears Storage + Context state
         }
+        
         await AsyncStorage.setItem('selectedJourney', JSON.stringify(pendingJourney));
         setPendingJourney(null);
         router.back();
