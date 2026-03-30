@@ -1,3 +1,7 @@
+// TODO
+// See if loading time of stats page can be improved
+// Its a bit laggy
+
 import { StyleSheet, Text, View, Pressable, ScrollView, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'

@@ -8,6 +8,9 @@ export const PedometerProvider = ({ children }) => {
     const [globalSteps, setGlobalSteps] = useState(0);
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
     
+    const STEP_MULTIPLIER = 0.7; // only this amount of detected steps are counted, make this customizable in future
+    const fractionalAccumulator = useRef(0);
+    
     // track the change between updates
     const lastSensorReading = useRef(null); 
     const STORAGE_KEY = 'savedStepCount';
@@ -16,7 +19,8 @@ export const PedometerProvider = ({ children }) => {
         try {
             await AsyncStorage.setItem(STORAGE_KEY, '0');
             setGlobalSteps(0);
-            lastSensorReading.current = null; 
+            lastSensorReading.current = null;
+            fractionalAccumulator.current = 0;
         } catch (e) {
             console.error("Failed to reset steps:", e);
         }
@@ -40,28 +44,32 @@ export const PedometerProvider = ({ children }) => {
                 if (status !== 'granted') return;
 
                 subscription = Pedometer.watchStepCount((result) => {
-                    // If we just started or just reset, set the baseline and wait for next update
                     if (lastSensorReading.current === null) {
                         lastSensorReading.current = result.steps;
                         return;
                     }
 
-                    // Calculate how many steps happened since last tick
                     const delta = result.steps - lastSensorReading.current;
-                    
+
                     if (delta > 0) {
-                        setGlobalSteps((prevTotal) => {
-                            const newTotal = prevTotal + delta;
-                            
-                            AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
-                            
-                            saveDailySteps(delta);
-                            
-                            return newTotal;
-                        });
+                        // Add fractional steps to accumulator
+                        fractionalAccumulator.current += delta * STEP_MULTIPLIER;
+
+                        // Only count whole steps
+                        const wholeSteps = Math.floor(fractionalAccumulator.current);
+
+                        if (wholeSteps > 0) {
+                            fractionalAccumulator.current -= wholeSteps; // keep the remainder
+
+                            setGlobalSteps((prevTotal) => {
+                                const newTotal = prevTotal + wholeSteps;
+                                AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
+                                saveDailySteps(wholeSteps);
+                                return newTotal;
+                            });
+                        }
                     }
 
-                    // Update the reading for the next comparison
                     lastSensorReading.current = result.steps;
                 });
 
