@@ -8,22 +8,15 @@ export const PedometerProvider = ({ children }) => {
     const [globalSteps, setGlobalSteps] = useState(0);
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
     
+    // track the change between updates
     const lastSensorReading = useRef(null); 
     const STORAGE_KEY = 'savedStepCount';
-
-    const burstBuffer = useRef(0);
-    const isWalking = useRef(false);
-    const walkTimeout = useRef(null);
-    const THRESHOLD = 10; 
 
     const resetSteps = async () => {
         try {
             await AsyncStorage.setItem(STORAGE_KEY, '0');
             setGlobalSteps(0);
             lastSensorReading.current = null; 
-            isWalking.current = false;
-            burstBuffer.current = 0;
-            if (walkTimeout.current) clearTimeout(walkTimeout.current);
         } catch (e) {
             console.error("Failed to reset steps:", e);
         }
@@ -35,7 +28,9 @@ export const PedometerProvider = ({ children }) => {
         const setupPedometer = async () => {
             try {
                 const saved = await AsyncStorage.getItem(STORAGE_KEY);
-                if (saved !== null) setGlobalSteps(parseInt(saved, 10));
+                if (saved !== null) {
+                    setGlobalSteps(parseInt(saved, 10));
+                }
 
                 const isAvailable = await Pedometer.isAvailableAsync();
                 setIsPedometerAvailable(isAvailable ? 'Yes' : 'No');
@@ -45,36 +40,28 @@ export const PedometerProvider = ({ children }) => {
                 if (status !== 'granted') return;
 
                 subscription = Pedometer.watchStepCount((result) => {
+                    // If we just started or just reset, set the baseline and wait for next update
                     if (lastSensorReading.current === null) {
                         lastSensorReading.current = result.steps;
                         return;
                     }
 
+                    // Calculate how many steps happened since last tick
                     const delta = result.steps - lastSensorReading.current;
-                    if (delta <= 0) return;
-
-                    if (!isWalking.current) {
-                        burstBuffer.current += delta;
-                        // Only start counting steps as real steps once threshold reached
-                        if (burstBuffer.current >= THRESHOLD) {
-                            isWalking.current = true;
-                            updateGlobalSteps(burstBuffer.current);
-                            burstBuffer.current = 0;
-                        }
-                    } else {
-                        // Already in walking state, count steps 1 for 1
-                        updateGlobalSteps(delta);
+                    
+                    if (delta > 0) {
+                        setGlobalSteps((prevTotal) => {
+                            const newTotal = prevTotal + delta;
+                            
+                            AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
+                            
+                            saveDailySteps(delta);
+                            
+                            return newTotal;
+                        });
                     }
 
-                    // Stop walking state after 5s of inactivity 
-                    if (walkTimeout.current) clearTimeout(walkTimeout.current);
-                    
-                    walkTimeout.current = setTimeout(() => {
-                        isWalking.current = false;
-                        burstBuffer.current = 0;
-                        console.log("Walking session ended due to inactivity.");
-                    }, 5000);
-
+                    // Update the reading for the next comparison
                     lastSensorReading.current = result.steps;
                 });
 
@@ -84,32 +71,18 @@ export const PedometerProvider = ({ children }) => {
         };
 
         setupPedometer();
-        return () => {
-            if (subscription) subscription.remove();
-            if (walkTimeout.current) clearTimeout(walkTimeout.current);
-        };
+        return () => { subscription && subscription.remove(); };
     }, []);
 
-    const updateGlobalSteps = (amount) => {
-        setGlobalSteps(prev => {
-            const next = prev + amount;
-            AsyncStorage.setItem(STORAGE_KEY, next.toString());
-            saveDailySteps(amount);
-            return next;
-        });
-    };
-
     const saveDailySteps = async (delta) => {
-        try {
-            const today = new Date().toISOString().split('T')[0];
-            const raw = await AsyncStorage.getItem('dailySteps');
-            const dailyData = raw ? JSON.parse(raw) : {};
-            
-            dailyData[today] = (dailyData[today] || 0) + delta;
-            await AsyncStorage.setItem('dailySteps', JSON.stringify(dailyData));
-        } catch (e) {
-            console.error("Error saving daily steps", e);
-        }
+        const today = new Date().toISOString().split('T')[0];
+        const raw = await AsyncStorage.getItem('dailySteps');
+        const dailyData = raw ? JSON.parse(raw) : {};
+        
+        const currentDayTotal = dailyData[today] || 0;
+        dailyData[today] = currentDayTotal + delta;
+        
+        await AsyncStorage.setItem('dailySteps', JSON.stringify(dailyData));
     };
 
     return (
