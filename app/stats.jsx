@@ -1,67 +1,43 @@
 // TODO
-// See if loading time of stats page can be improved
-// Its a bit laggy
+// see if image loading in general can be improved
 
 import { StyleSheet, Text, View, Pressable, ScrollView, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VictoryLine, VictoryChart, VictoryAxis, VictoryScatter, VictoryLabel } from 'victory-native'
 import Card from '../components/card'
-
-const STORAGE_KEY = 'savedStepCount';
-const JOURNEY_KEY = 'selectedJourney';
+import { usePedometerContext } from '../context/PedometerContext'
 
 const { width } = Dimensions.get('window');
 const CARD_MARGIN = 20;
-const CHART_WIDTH = width - CARD_MARGIN * 2 - 32; // card padding
+const CHART_WIDTH = width - CARD_MARGIN * 2 - 32;
 
 const Stats = () => {
     const router = useRouter();
-    const [steps, setSteps] = useState(0);
-    const [journey, setJourney] = useState(null);
-    const [dailySteps, setDailySteps] = useState([]);
-    const [allTimeSteps, setAllTimeSteps] = useState(0);
+    const { globalSteps, selectedJourney: journey, dailySteps: rawDaily } = usePedometerContext();
 
-    useEffect(() => {
-        const load = async () => {
-            const savedSteps = await AsyncStorage.getItem(STORAGE_KEY);
-            const savedJourney = await AsyncStorage.getItem(JOURNEY_KEY);
-            const savedDaily = await AsyncStorage.getItem('dailySteps');
-
-            if (savedSteps) setSteps(parseInt(savedSteps, 10) || 0);
-            if (savedJourney) setJourney(JSON.parse(savedJourney));
-
-            const daily = savedDaily ? JSON.parse(savedDaily) : {};
-
-            // Derive all-time total from every day ever recorded
-            const allTime = Object.values(daily).length > 0
-                ? Math.max(...Object.values(daily))
-                : 0;
-            setAllTimeSteps(allTime);
-
-            // Build last 7 days
-            const last7 = [];
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                const key = date.toISOString().split('T')[0];
-                const label = date.toLocaleDateString('en', { weekday: 'short' });
-                last7.push({ day: label, steps: daily[key] || 0, key });
-            }
-            setDailySteps(last7);
-        };
-        load();
-    }, []);
+    const steps = globalSteps;
 
     const progressFraction = journey ? Math.min(steps / journey.totalSteps, 1) : 0;
     const progressPercent = (progressFraction * 100).toFixed(1);
     const stepsLeft = journey ? Math.max(journey.totalSteps - steps, 0) : 0;
 
     const kmJourney = (steps * 0.00076).toFixed(2);
-    const kmAllTime = (allTimeSteps * 0.00076).toFixed(2);
-    const milesAllTime = (allTimeSteps * 0.000473).toFixed(2);
     const calories = Math.round(steps * 0.04);
+
+    // All-time = highest value recorded across all days
+    const allTimeSteps = Object.values(rawDaily).length > 0
+        ? Object.values(rawDaily).reduce((sum, val) => sum + val, 0)
+        : 0;
+    const kmAllTime = (allTimeSteps * 0.00076).toFixed(2);
+
+    // Build last 7 days from context data
+    const last7 = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        const key = date.toISOString().split('T')[0];
+        const label = date.toLocaleDateString('en', { weekday: 'short' });
+        return { day: label, steps: rawDaily[key] || 0 };
+    });
 
     const formatSteps = (n) => {
         if (n >= 1000000) return `${(n / 1000000).toFixed(2)}M`;
@@ -69,8 +45,8 @@ const Stats = () => {
         return n.toLocaleString();
     };
 
-    const chartData = dailySteps.map((d, i) => ({ x: i, y: d.steps }));
-    const maxSteps = Math.max(...dailySteps.map(d => d.steps), 1);
+    const chartData = last7.map((d, i) => ({ x: i, y: d.steps }));
+    const maxSteps = Math.max(...last7.map(d => d.steps), 1);
 
     return (
         <View style={styles.container}>
@@ -78,7 +54,6 @@ const Stats = () => {
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
-                {/* Journey info */}
                 <Card style={styles.infoCard}>
                     {journey ? (
                         <View>
@@ -94,7 +69,6 @@ const Stats = () => {
                     )}
                 </Card>
 
-                {/* Progress bar */}
                 {journey && (
                     <Card style={styles.infoCard}>
                         <Text style={styles.cardLabel}>Journey Progress</Text>
@@ -107,7 +81,6 @@ const Stats = () => {
                     </Card>
                 )}
 
-                {/* Stats grid */}
                 <View style={styles.statsGrid}>
                     <Card style={styles.statBox}>
                         <Text style={styles.statValue}>{formatSteps(allTimeSteps)}</Text>
@@ -127,7 +100,6 @@ const Stats = () => {
                     </Card>
                 </View>
 
-                {/* 7-day line chart */}
                 <Card style={styles.chartCard}>
                     <Text style={styles.cardLabel}>Steps — Last 7 Days</Text>
                     <VictoryChart
@@ -137,8 +109,8 @@ const Stats = () => {
                         domain={{ y: [0, maxSteps * 1.2] }}
                     >
                         <VictoryAxis
-                            tickValues={dailySteps.map((_, i) => i)}
-                            tickFormat={dailySteps.map(d => d.day)}
+                            tickValues={last7.map((_, i) => i)}
+                            tickFormat={last7.map(d => d.day)}
                             style={{
                                 axis: { stroke: '#ccc' },
                                 tickLabels: { fontSize: 11, fill: '#888' },
@@ -151,9 +123,7 @@ const Stats = () => {
                         />
                         <VictoryLine
                             data={chartData}
-                            style={{
-                                data: { stroke: '#4a9e6b', strokeWidth: 2.5 },
-                            }}
+                            style={{ data: { stroke: '#4a9e6b', strokeWidth: 2.5 } }}
                             interpolation="monotoneX"
                         />
                         <VictoryScatter
@@ -162,10 +132,7 @@ const Stats = () => {
                             style={{ data: { fill: '#4a9e6b' } }}
                             labels={({ datum }) => datum.y > 0 ? formatSteps(datum.y) : ''}
                             labelComponent={
-                                <VictoryLabel
-                                    dy={-12}
-                                    style={{ fontSize: 9, fill: '#555' }}
-                                />
+                                <VictoryLabel dy={-12} style={{ fontSize: 9, fill: '#555' }} />
                             }
                         />
                     </VictoryChart>

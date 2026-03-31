@@ -3,7 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router, useFocusEffect } from 'expo-router';
 import styles from './styles/index.styles';
-import { usePedometerContext } from '../context/PedometerContext'; // <-- Import your new context here
+import { usePedometerContext } from '../context/PedometerContext';
 
 const JOURNEY_KEY = 'selectedJourney';
 const { width } = Dimensions.get('window');

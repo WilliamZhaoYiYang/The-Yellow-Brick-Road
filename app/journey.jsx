@@ -16,6 +16,7 @@ const Journey = () => {
     const [currentJourney, setCurrentJourney] = useState(null);
     const [currentSteps, setCurrentSteps] = useState(0);
     const { resetSteps } = usePedometerContext();
+    const { loadJourney } = usePedometerContext();
 
     // Load existing journey and steps on mount
     useEffect(() => {
@@ -34,10 +35,10 @@ const Journey = () => {
 
     const handleConfirm = async () => {
         if (currentJourney && currentJourney.id !== pendingJourney.id) {
-            await resetSteps(); // clears Storage + Context state
+            await AsyncStorage.removeItem(STORAGE_KEY);
         }
-        
         await AsyncStorage.setItem('selectedJourney', JSON.stringify(pendingJourney));
+        await loadJourney();
         setPendingJourney(null);
         router.back();
     };

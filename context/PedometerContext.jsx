@@ -4,16 +4,43 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PedometerContext = createContext();
 
+const STORAGE_KEY = 'savedStepCount';
+const JOURNEY_KEY = 'selectedJourney';
+const STEP_MULTIPLIER = 0.6;
+
 export const PedometerProvider = ({ children }) => {
     const [globalSteps, setGlobalSteps] = useState(0);
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
+    const [selectedJourney, setSelectedJourney] = useState(null);
+    const [dailySteps, setDailySteps] = useState({}); 
+
     
-    const STEP_MULTIPLIER = 0.7; // only this amount of detected steps are counted, make this customizable in future
+    const lastSensorReading = useRef(null);
     const fractionalAccumulator = useRef(0);
+    const selectedJourneyRef = useRef(null);
     
-    // track the change between updates
-    const lastSensorReading = useRef(null); 
-    const STORAGE_KEY = 'savedStepCount';
+    // Load journey and sync ref — called from context so all screens benefit
+    const loadJourney = async () => {
+        const saved = await AsyncStorage.getItem(JOURNEY_KEY);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            setSelectedJourney(parsed);
+            selectedJourneyRef.current = parsed;
+        } else {
+            setSelectedJourney(null);
+            selectedJourneyRef.current = null;
+        }
+    };
+
+    const loadDailySteps = async () => {
+        const raw = await AsyncStorage.getItem('dailySteps');
+        setDailySteps(raw ? JSON.parse(raw) : {});
+    };
+
+    useEffect(() => {
+        loadJourney();
+        loadDailySteps();
+    }, []);
 
     const resetSteps = async () => {
         try {
@@ -44,6 +71,8 @@ export const PedometerProvider = ({ children }) => {
                 if (status !== 'granted') return;
 
                 subscription = Pedometer.watchStepCount((result) => {
+                    if (!selectedJourneyRef.current) return;
+
                     if (lastSensorReading.current === null) {
                         lastSensorReading.current = result.steps;
                         return;
@@ -86,15 +115,21 @@ export const PedometerProvider = ({ children }) => {
         const today = new Date().toISOString().split('T')[0];
         const raw = await AsyncStorage.getItem('dailySteps');
         const dailyData = raw ? JSON.parse(raw) : {};
-        
-        const currentDayTotal = dailyData[today] || 0;
-        dailyData[today] = currentDayTotal + delta;
+        dailyData[today] = (dailyData[today] || 0) + delta;
         
         await AsyncStorage.setItem('dailySteps', JSON.stringify(dailyData));
+        setDailySteps({ ...dailyData });
     };
 
     return (
-        <PedometerContext.Provider value={{ globalSteps, isPedometerAvailable, resetSteps }}>
+        <PedometerContext.Provider value={{
+            globalSteps,
+            isPedometerAvailable,
+            selectedJourney,
+            dailySteps,
+            resetSteps,
+            loadJourney,
+        }}>
             {children}
         </PedometerContext.Provider>
     );
