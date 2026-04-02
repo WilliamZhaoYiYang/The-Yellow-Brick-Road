@@ -20,20 +20,31 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     bannerCard: {
-        width: width,
-        paddingHorizontal: 16,
+        width: width - 32, // account for the gap
+        marginHorizontal: 16, // shadow now visible on both sides
     },
     bannerImage: {
         width: '100%',
-        height: BANNER_HEIGHT - 36,
+        height: BANNER_HEIGHT,
         borderRadius: 14,
+    },
+    bannerTitleOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: 'rgba(0,0,0,0.35)',
+        borderBottomLeftRadius: 14,
+        borderBottomRightRadius: 14,
     },
     bannerTitle: {
         fontSize: 14,
         fontWeight: '600',
         textAlign: 'center',
         marginTop: 6,
-        color: '#222',
+        color: 'white',
     },
 
     // Modal

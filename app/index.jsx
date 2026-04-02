@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router, useFocusEffect } from 'expo-router';
 import styles from './styles/index.styles';
+import Card from '../components/card';
 import { usePedometerContext } from '../context/PedometerContext';
 
 const JOURNEY_KEY = 'selectedJourney';
@@ -59,7 +60,7 @@ const BannerCarousel = ({ items }) => {
                         setActiveIndex(index);
                     }}
                     renderItem={({ item }) => (
-                        <Pressable
+                        <Card
                             style={styles.bannerCard}
                             onPress={() => setSelectedItem(item)}
                         >
@@ -68,8 +69,10 @@ const BannerCarousel = ({ items }) => {
                                 style={styles.bannerImage}
                                 resizeMode="cover"
                             />
-                            <Text style={styles.bannerTitle}>{item.title}</Text>
-                        </Pressable>
+                            <View style={styles.bannerTitleOverlay}>
+                                <Text style={styles.bannerTitle}>{item.title}</Text>
+                            </View>
+                        </Card>
                     )}
                 />
 
