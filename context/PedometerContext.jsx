@@ -6,18 +6,25 @@ const PedometerContext = createContext();
 
 const STORAGE_KEY = 'savedStepCount';
 const JOURNEY_KEY = 'selectedJourney';
-const STEP_MULTIPLIER = 0.6;
 
 export const PedometerProvider = ({ children }) => {
     const [globalSteps, setGlobalSteps] = useState(0);
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
     const [selectedJourney, setSelectedJourney] = useState(null);
     const [dailySteps, setDailySteps] = useState({}); 
-
+    
+    const [stepMultiplier, setStepMultiplier] = useState(0.6);
+    const stepMultiplierRef = useRef(0.6);
     
     const lastSensorReading = useRef(null);
     const fractionalAccumulator = useRef(0);
     const selectedJourneyRef = useRef(null);
+
+    const updateStepMultiplier = async (value) => {
+        setStepMultiplier(value);
+        stepMultiplierRef.current = value;
+        await AsyncStorage.setItem('stepMultiplier', value.toString());
+    };
     
     // Load journey and sync ref — called from context so all screens benefit
     const loadJourney = async () => {
@@ -40,6 +47,13 @@ export const PedometerProvider = ({ children }) => {
     useEffect(() => {
         loadJourney();
         loadDailySteps();
+        AsyncStorage.getItem('stepMultiplier').then(saved => {
+            if (saved !== null) {
+                const val = parseFloat(saved);
+                setStepMultiplier(val);
+                stepMultiplierRef.current = val;
+            }
+        });
     }, []);
 
     const resetSteps = async () => {
@@ -82,7 +96,7 @@ export const PedometerProvider = ({ children }) => {
 
                     if (delta > 0) {
                         // Add fractional steps to accumulator
-                        fractionalAccumulator.current += delta * STEP_MULTIPLIER;
+                        fractionalAccumulator.current += delta * stepMultiplierRef.current;
 
                         // Only count whole steps
                         const wholeSteps = Math.floor(fractionalAccumulator.current);
@@ -129,6 +143,8 @@ export const PedometerProvider = ({ children }) => {
             dailySteps,
             resetSteps,
             loadJourney,
+            stepMultiplier,
+            updateStepMultiplier,            
         }}>
             {children}
         </PedometerContext.Provider>

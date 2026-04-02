@@ -13,7 +13,7 @@ const CHART_WIDTH = width - CARD_MARGIN * 2 - 32;
 
 const Stats = () => {
     const router = useRouter();
-    const { globalSteps, selectedJourney: journey, dailySteps: rawDaily } = usePedometerContext();
+    const { globalSteps, selectedJourney: journey, dailySteps: rawDaily, stepMultiplier, updateStepMultiplier } = usePedometerContext();
 
     const steps = globalSteps;
 
@@ -96,12 +96,12 @@ const Stats = () => {
                     </Card>
                     <Card style={styles.statBox}>
                         <Text style={styles.statValue}>{calories}</Text>
-                        <Text style={styles.statLabel}>Calories</Text>
+                        <Text style={styles.statLabel}>Calories This Journey</Text>
                     </Card>
                 </View>
 
                 <Card style={styles.chartCard}>
-                    <Text style={styles.cardLabel}>Steps — Last 7 Days</Text>
+                    <Text style={styles.cardLabel}>Total Steps — Last 7 Days</Text>
                     <VictoryChart
                         width={CHART_WIDTH}
                         height={220}
@@ -136,6 +136,33 @@ const Stats = () => {
                             }
                         />
                     </VictoryChart>
+                </Card>
+
+                {/* Sensitivity setting */}
+                <Card style={styles.infoCard}>
+                    <Text style={styles.cardLabel}>Step Sensitivity</Text>
+                    <Text style={styles.cardSub}>
+                        {Math.round(stepMultiplier * 100)}% of detected steps are counted. Adjust if your step count feels too high or too low.
+                    </Text>
+                    <View style={styles.sensitivityRow}>
+                        {[0.2, 0.4, 0.6, 0.8, 1.0].map((val) => (
+                            <Pressable
+                                key={val}
+                                style={[
+                                    styles.sensitivityBtn,
+                                    stepMultiplier === val && styles.sensitivityBtnActive,
+                                ]}
+                                onPress={() => updateStepMultiplier(val)}
+                            >
+                                <Text style={[
+                                    styles.sensitivityBtnText,
+                                    stepMultiplier === val && styles.sensitivityBtnTextActive,
+                                ]}>
+                                    {Math.round(val * 100)}%
+                                </Text>
+                            </Pressable>
+                        ))}
+                    </View>
                 </Card>
 
             </ScrollView>
@@ -222,6 +249,7 @@ const styles = StyleSheet.create({
         fontSize: 26,
         fontWeight: '800',
         color: '#111',
+        textAlign: 'center',
     },
     statLabel: {
         fontSize: 12,
@@ -246,5 +274,29 @@ const styles = StyleSheet.create({
     backButtonText: {
         fontSize: 16,
         fontWeight: '600',
+    },
+
+    sensitivityRow: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 14,
+    },
+    sensitivityBtn: {
+        flex: 1,
+        paddingVertical: 10,
+        borderRadius: 10,
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
+    },
+    sensitivityBtnActive: {
+        backgroundColor: '#4a9e6b',
+    },
+    sensitivityBtnText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#555',
+    },
+    sensitivityBtnTextActive: {
+        color: 'white',
     },
 });

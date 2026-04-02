@@ -35,7 +35,7 @@ const Journey = () => {
 
     const handleConfirm = async () => {
         if (currentJourney && currentJourney.id !== pendingJourney.id) {
-            await AsyncStorage.removeItem(STORAGE_KEY);
+            await resetSteps();
         }
         await AsyncStorage.setItem('selectedJourney', JSON.stringify(pendingJourney));
         await loadJourney();
