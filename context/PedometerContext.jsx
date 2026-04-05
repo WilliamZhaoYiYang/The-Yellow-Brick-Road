@@ -54,6 +54,19 @@ export const PedometerProvider = ({ children }) => {
                 stepMultiplierRef.current = val;
             }
         });
+        // TEMP to manually add steps
+        // setTimeout(async () => {
+        //     const bonusSteps = 5000000;
+
+        //     const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        //     const base = saved ? parseInt(saved, 10) : 0;
+
+        //     const newTotal = base + bonusSteps;
+
+        //     setGlobalSteps(newTotal);
+        //     await AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
+        //     saveDailySteps(bonusSteps);
+        // }, 300);
     }, []);
 
     const resetSteps = async () => {

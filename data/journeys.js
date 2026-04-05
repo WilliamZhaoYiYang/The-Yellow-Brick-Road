@@ -6,42 +6,87 @@ export const JOURNEYS = [
         totalSteps: 250000,
         goal: 'The Emerald City',
         description: 'A magical journey through the land of Oz. The road is paved and mostly flat, winding through poppy fields, enchanted forests, and friendly villages.' +
-        'Expect whimsical encounters around every corner — but watch out for flying monkeys. Suitable for all fitness levels.',
+        'Expect whimsical encounters around every corner, but watch out for flying monkeys!',
         bannerItems: [
             {
                 id: 'ybr-1',
                 unlockedAfterSteps: 0,
                 title: 'The Journey Begins',
-                image: 'https://picsum.photos/seed/ybr1/600/300',
-                detail: 'Dorothy has just landed in Oz! The yellow brick road stretches ahead, leading toward the Emerald City. Every great journey starts with a single step.',
+                image: require('../assets/journeyImages/ybr-1.png'),
+                detail: "The last thing you remember was the dreadful tornado carrying your house away from everyone you knew in little old Kansas.\n" +
+                "When you woke up you found yourself in the land of Oz! The yellow brick road stretches ahead, leading towards the Emerald City.\n" +
+                "With nothing but a pair of red slippers and the advice of the munchkins, you set off down the yellow brick road." 
             },
             {
                 id: 'ybr-2',
                 unlockedAfterSteps: 50000,
-                title: 'You Met the Scarecrow',
-                image: 'https://picsum.photos/seed/ybr2/600/300',
-                detail: 'After 50,000 steps you\'ve come across a scarecrow longing for a brain. He joins your journey — a reminder that courage and companionship make every road easier.',
+                title: 'You Met The Scarecrow',
+                image: require('../assets/journeyImages/ybr-2.jpg'),
+                detail: 'After 50,000 steps you\'ve come across a scarecrow longing for a brain. He swings down from his post and joins you, hoping that by walking beside you, he might pick up a few clever thoughts along the way. ',
             },
             {
                 id: 'ybr-3',
-                unlockedAfterSteps: 100000,
-                title: 'The Tin Man Joins You',
-                image: 'https://picsum.photos/seed/ybr3/600/300',
-                detail: 'Halfway through the forest you find the Tin Man, frozen in place. A little oil and he\'s walking beside you, searching for a heart he already has.',
+                unlockedAfterSteps: 60000,
+                title: 'The Scarecrow\'s Riddle',
+                image: require('../assets/journeyImages/ybr-3.jpg'),
+                detail: 'After an hour of walking, the scarecrow taps his burlap head.\n' + 
+                '\"I found a riddle inside me. What has keys but no locks, space but no room, and you can enter but never leave?\"\n' + 
+                'You think for a moment, maybe you can solve the riddle after another 10,000 steps?'
             },
             {
                 id: 'ybr-4',
-                unlockedAfterSteps: 150000,
-                title: 'The Lion Finds Courage',
-                image: 'https://picsum.photos/seed/ybr4/600/300',
-                detail: 'The Cowardly Lion leaps from the trees — but quickly joins the group. He seeks courage, yet every step he takes proves he had it all along.',
+                unlockedAfterSteps: 70000,
+                title: 'The Riddle Solved',
+                image: require('../assets/journeyImages/ybr-4.jpg'),
+                detail: 'You walked in silence for a bit, thinking. The scarecrow watches you with his painted on eyes.\n' +
+                '\"A Keyboard,\" you say finally.\n' + 
+                'The scarecrow grins at you with his stitched on mouth. \"I feel smarter already.\"'
             },
             {
                 id: 'ybr-5',
+                unlockedAfterSteps: 100000,
+                title: 'The Tin Man Joins You',
+                image: require('../assets/journeyImages/ybr-5.png'),
+                detail: 'Halfway through the forest you find a rusted tin man, frozen in place. His joints screech as you help him move.\n' +
+                '\"I\'ve stood here for years,\" he says\, \"waiting for a heart. May I walk with you?\"\n' +
+                'You help oil his limbs and he falls in beside you, every creaky step sounding a little cheerful already.\n'
+            },
+            {
+                id: 'ybr-6',
+                unlockedAfterSteps: 150000,
+                title: 'The Lion Wants Courage',
+                image: require('../assets/journeyImages/ybr-6.jpg'),
+                detail: 'A thunderous roar shakes the path and a lion leaps out... to immediately stumble over his own paws.\n' +
+                '\"I-I\'m sorry!\" he whimpers, tail between his legs. \"I try to act as a lion should but I\'m neither brave enough nor good at it.\"\n' + 
+                'You offer a hand. He peeks through his paws.\n' +
+                'You find your party has grown with another new friend.'
+            },
+            {
+                id: 'ybr-7',
+                unlockedAfterSteps: 190000,
+                title: 'The Poppy Field',
+                image: require('../assets/journeyImages/ybr-7.jpg'),
+                detail: 'The path vanishes into a sea of glowing red poppies. Their scent is sweet... too sweet.\n' +
+                'The lion yawns. \"Just... a little nap...\" He stumbles.\n' +
+                'The scarecrow waves a straw hand. \"Stay awake! It\'s a witches curse!\"\n' +
+                'You grab the lion\'s paw and drag him forward, step by heavy step. The tin man clanks ahead.\n'
+            },
+            {
+                id: 'ybr-8',
                 unlockedAfterSteps: 200000,
+                title: 'Out Of The Poppy Field',
+                image: require('../assets/journeyImages/ybr-8.jpg'),
+                detail: 'After almost two hours the air clears.\n' +
+                'The lion shakes himself awake. \"I almost gave up, but you didn\'t.\"\n' +
+                'You keep walking. Together.'
+            },
+            {
+                id: 'ybr-9',
+                unlockedAfterSteps: 230000,
                 title: 'The Emerald City Awaits',
-                image: 'https://picsum.photos/seed/ybr5/600/300',
-                detail: 'The glittering spires of the Emerald City are visible on the horizon. You\'re nearly there — just a few more steps and the wizard will grant your wishes.',
+                image: require('../assets/journeyImages/ybr-9.png'),
+                detail: 'The glittering spires of the Emerald City are visible on the horizon, looming huge against a violet sky.\n' +
+                'You\'re almost there.'
             },
         ],
     },
@@ -130,94 +175,6 @@ export const JOURNEYS = [
                 title: 'Mojave Desert',
                 image: 'https://picsum.photos/seed/r665/600/300',
                 detail: 'The Californian desert stretches endlessly. The heat shimmers off the asphalt, but Santa Monica and the ocean are almost within reach.',
-            },
-        ],
-    },
-    {
-        id: '4',
-        title: 'The Camino de Santiago',
-        image: 'https://picsum.photos/seed/camino/800/450',
-        totalSteps: 900000,
-        goal: 'Santiago de Compostela',
-        bannerItems: [
-            {
-                id: 'cam-1',
-                unlockedAfterSteps: 0,
-                title: 'Saint-Jean-Pied-de-Port',
-                image: 'https://picsum.photos/seed/cam1/600/300',
-                detail: 'You begin in this small French Basque town at the foot of the Pyrenees. Pilgrims have set off from here for centuries. Buen Camino!',
-            },
-            {
-                id: 'cam-2',
-                unlockedAfterSteps: 180000,
-                title: 'Crossing the Pyrenees',
-                image: 'https://picsum.photos/seed/cam2/600/300',
-                detail: 'The mountain crossing is the hardest day on the Camino. But the views from the top are breathtaking — and Spain awaits on the other side.',
-            },
-            {
-                id: 'cam-3',
-                unlockedAfterSteps: 400000,
-                title: 'Burgos Cathedral',
-                image: 'https://picsum.photos/seed/cam3/600/300',
-                detail: 'The Gothic spires of Burgos Cathedral rise above the meseta. You\'ve walked halfway — time to rest your feet and marvel at 700 years of history.',
-            },
-            {
-                id: 'cam-4',
-                unlockedAfterSteps: 650000,
-                title: 'O Cebreiro Mountain Pass',
-                image: 'https://picsum.photos/seed/cam4/600/300',
-                detail: 'The final mountain crossing takes you into Galicia. Mist clings to the peaks and Celtic stone villages dot the hillside. The end is near.',
-            },
-            {
-                id: 'cam-5',
-                unlockedAfterSteps: 850000,
-                title: 'The Cathedral of Santiago',
-                image: 'https://picsum.photos/seed/cam5/600/300',
-                detail: 'The Praza do Obradoiro opens before you. Pilgrims weep, embrace strangers, and stand in awe. You\'ve walked the Camino.',
-            },
-        ],
-    },
-    {
-        id: '5',
-        title: 'The Appalachian Trail',
-        image: 'https://picsum.photos/seed/appalachian/800/450',
-        totalSteps: 5000000,
-        goal: 'Mount Katahdin',
-        bannerItems: [
-            {
-                id: 'at-1',
-                unlockedAfterSteps: 0,
-                title: 'Springer Mountain, Georgia',
-                image: 'https://picsum.photos/seed/at1/600/300',
-                detail: 'The southern terminus of the AT. A bronze plaque marks the start of 2,190 miles through 14 states. The white blazes will guide your way north.',
-            },
-            {
-                id: 'at-2',
-                unlockedAfterSteps: 800000,
-                title: 'Great Smoky Mountains',
-                image: 'https://picsum.photos/seed/at2/600/300',
-                detail: 'The most visited national park in America. The trail rides the ridge of the Smokies through ancient forest thick with wildlife.',
-            },
-            {
-                id: 'at-3',
-                unlockedAfterSteps: 2000000,
-                title: 'Shenandoah Valley',
-                image: 'https://picsum.photos/seed/at3/600/300',
-                detail: 'Skyline Drive parallels the trail here. The valley views are spectacular and the trail towns offer a welcome slice of civilisation.',
-            },
-            {
-                id: 'at-4',
-                unlockedAfterSteps: 3500000,
-                title: 'The White Mountains',
-                image: 'https://picsum.photos/seed/at4/600/300',
-                detail: 'New Hampshire\'s Whites are the most demanding section of the AT. Above treeline, exposed ridges and unpredictable weather test every hiker.',
-            },
-            {
-                id: 'at-5',
-                unlockedAfterSteps: 4700000,
-                title: 'Mount Katahdin',
-                image: 'https://picsum.photos/seed/at5/600/300',
-                detail: 'The northern terminus rises dramatically from the Maine wilderness. Reaching the Katahdin summit sign is one of the great moments in hiking.',
             },
         ],
     },

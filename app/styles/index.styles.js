@@ -70,12 +70,14 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         margin: 16,
         marginBottom: 8,
+        textAlign: 'center',
     },
     modalDetail: {
         fontSize: 15,
         color: '#555',
         marginHorizontal: 16,
         lineHeight: 22,
+        textAlign: 'center',
     },
     modalClose: {
         margin: 16,

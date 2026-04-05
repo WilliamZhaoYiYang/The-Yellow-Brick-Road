@@ -65,7 +65,11 @@ const BannerCarousel = ({ items }) => {
                             onPress={() => setSelectedItem(item)}
                         >
                             <Image
-                                source={{ uri: item.image }}
+                                source={
+                                    typeof item.image === 'string'
+                                    ? { uri: item.image }
+                                    : item.image
+                                }
                                 style={styles.bannerImage}
                                 resizeMode="cover"
                             />
@@ -107,7 +111,11 @@ const BannerCarousel = ({ items }) => {
                 <Pressable style={styles.modalBackdrop} onPress={() => setSelectedItem(null)}>
                     <Pressable style={styles.modalCard} onPress={() => {}}>
                         <Image
-                            source={{ uri: selectedItem?.image }}
+                            source={
+                                typeof selectedItem?.image === 'number'
+                                    ? selectedItem.image
+                                    : { uri: selectedItem?.image }
+                            }
                             style={styles.modalImage}
                             resizeMode="cover"
                         />
@@ -186,6 +194,7 @@ const Home = () => {
     const unlockedBannerItems = selectedJourney
         ? selectedJourney.bannerItems.filter(item => displayValue >= item.unlockedAfterSteps)
         : [];
+    const journeyComplete = selectedJourney && displayValue >= selectedJourney.totalSteps;
 
     return (
         <View style={styles.container}>
@@ -196,21 +205,33 @@ const Home = () => {
 
             {/* Main content */}
             <View style={styles.mainContent}>
-                <Text
-                    style={styles.title}
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                >
-                    {selectedJourney ? displayValue.toLocaleString() : '🧭'}
-                </Text>
-                <Text style={styles.info}>
-                    {selectedJourney ? 'Steps Into Your Journey' : 'Please pick a journey before starting!'}
-                </Text>
-                <Text style={styles.instruction}>
-                    {selectedJourney
-                        ? `${stepsLeft.toLocaleString()} steps to ${selectedJourney.goal}`
-                        : 'Walk around with your phone to count steps'}
-                </Text>
+                {journeyComplete ? (
+                    <>
+                        <Text style={styles.title}>🎉</Text>
+                        <Text style={styles.info}>You completed{'\n'}{selectedJourney.title}!</Text>
+                        <Text style={styles.instruction}>
+                            You walked {displayValue.toLocaleString()} steps to reach {selectedJourney.goal}
+                        </Text>
+                    </>
+                ) : (
+                    <>
+                        <Text
+                            style={styles.title}
+                            numberOfLines={1}
+                            adjustsFontSizeToFit
+                        >
+                            {selectedJourney ? displayValue.toLocaleString() : '🧭'}
+                        </Text>
+                        <Text style={styles.info}>
+                            {selectedJourney ? 'Steps Into Your Journey' : 'Please pick a journey before starting!'}
+                        </Text>
+                        <Text style={styles.instruction}>
+                            {selectedJourney
+                                ? `${stepsLeft.toLocaleString()} steps to ${selectedJourney.goal}`
+                                : 'Walk around with your phone to count steps'}
+                        </Text>
+                    </>
+                )}
             </View>
 
             <View style={styles.buttonContainer}>
