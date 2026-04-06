@@ -120,6 +120,9 @@ const BannerCarousel = ({ items }) => {
                             resizeMode="cover"
                         />
                         <Text style={styles.modalTitle}>{selectedItem?.title}</Text>
+                        <Text style={styles.modalSteps}>
+                            🥾 Unlocked at {selectedItem?.unlockedAfterSteps?.toLocaleString()} steps
+                        </Text>
                         <Text style={styles.modalDetail}>{selectedItem?.detail}</Text>
                         <Pressable style={styles.modalClose} onPress={() => setSelectedItem(null)}>
                             <Text style={styles.modalCloseText}>Close</Text>
@@ -140,6 +143,14 @@ const Home = () => {
     const animatedSteps = useRef(new Animated.Value(0)).current;
     const [displayValue, setDisplayValue] = useState(0);
     const [stepsLeft, setStepsLeft] = useState(0);
+
+    const unlockedBannerItems = selectedJourney
+        ? selectedJourney.bannerItems.filter(item => displayValue >= item.unlockedAfterSteps)
+        : [];
+    const journeyComplete = selectedJourney && displayValue >= selectedJourney.totalSteps;
+    const nextLandmark = selectedJourney
+        ? selectedJourney.bannerItems.find(item => displayValue < item.unlockedAfterSteps)
+        : null;
 
     const animateToValue = (newValue) => {
         Animated.timing(animatedSteps, {
@@ -191,11 +202,6 @@ const Home = () => {
         }
     }, [displayValue, selectedJourney]);
 
-    const unlockedBannerItems = selectedJourney
-        ? selectedJourney.bannerItems.filter(item => displayValue >= item.unlockedAfterSteps)
-        : [];
-    const journeyComplete = selectedJourney && displayValue >= selectedJourney.totalSteps;
-
     return (
         <View style={styles.container}>
             {/* Banner at top */}
@@ -230,6 +236,11 @@ const Home = () => {
                                 ? `${stepsLeft.toLocaleString()} steps to ${selectedJourney.goal}`
                                 : 'Walk around with your phone to count steps'}
                         </Text>
+                        {nextLandmark && (
+                            <Text style={styles.nextLandmark}>
+                                📍 {(nextLandmark.unlockedAfterSteps - displayValue).toLocaleString()} steps to {nextLandmark.title}
+                            </Text>
+                        )}
                     </>
                 )}
             </View>

@@ -78,7 +78,7 @@ export const JOURNEYS = [
                 image: require('../assets/journeyImages/ybr-8.jpg'),
                 detail: 'After almost two hours the air clears.\n' +
                 'The lion shakes himself awake. \"I almost gave up, but you didn\'t.\"\n' +
-                'You keep walking. Together.'
+                'You keep walking, now a little more determined.'
             },
             {
                 id: 'ybr-9',

@@ -72,6 +72,13 @@ const styles = StyleSheet.create({
         marginBottom: 8,
         textAlign: 'center',
     },
+    modalSteps: {
+        fontSize: 13,
+        color: '#888',
+        fontWeight: '500',
+        marginHorizontal: 16,
+        marginBottom: 8,
+    },
     modalDetail: {
         fontSize: 15,
         color: '#555',
@@ -113,6 +120,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: 30,
         textAlign: 'center',
+    },
+    nextLandmark: {
+        fontSize: 14,
+        color: '#555',
+        marginTop: 10,
+        textAlign: 'center',
+        fontStyle: 'italic',
     },
 
     // Buttons
