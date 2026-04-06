@@ -1,8 +1,5 @@
 // TODO
-// add text next to title of modal pop up displaying the number of steps it took to reach this landmark
-// add notification when a landmark is reached
-// add a next destination showing how many steps left to next landmark
-// see if image loading in general can be improved, still take a bit to load when user reaches a new landmark
+// add tutorial on first launch
 
 import { StyleSheet, Text, View, Pressable, ScrollView, Dimensions } from 'react-native'
 import { useRouter } from 'expo-router'

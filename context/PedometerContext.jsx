@@ -1,6 +1,17 @@
 import React, { createContext, useState, useEffect, useRef, useContext } from 'react';
 import { Pedometer } from 'expo-sensors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
+
+// How notifications appear when app is in foreground
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+    }),
+});
 
 const PedometerContext = createContext();
 
@@ -12,18 +23,33 @@ export const PedometerProvider = ({ children }) => {
     const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
     const [selectedJourney, setSelectedJourney] = useState(null);
     const [dailySteps, setDailySteps] = useState({}); 
-    
     const [stepMultiplier, setStepMultiplier] = useState(0.6);
+
     const stepMultiplierRef = useRef(0.6);
-    
     const lastSensorReading = useRef(null);
     const fractionalAccumulator = useRef(0);
     const selectedJourneyRef = useRef(null);
+    const notifiedLandmarksRef = useRef(new Set()); 
 
-    const updateStepMultiplier = async (value) => {
-        setStepMultiplier(value);
-        stepMultiplierRef.current = value;
-        await AsyncStorage.setItem('stepMultiplier', value.toString());
+    useEffect(() => {
+        const requestNotificationPermission = async () => {
+            const { status } = await Notifications.requestPermissionsAsync();
+            if (status !== 'granted') {
+                console.log('Notification permission not granted');
+            }
+        };
+        requestNotificationPermission();
+    }, []);
+
+    const sendLandmarkNotification = async (landmark) => {
+        await Notifications.scheduleNotificationAsync({
+            content: {
+                title: `🏁 Landmark Reached!`,
+                body: `You've unlocked "${landmark.title}" at ${landmark.unlockedAfterSteps.toLocaleString()} steps!`,
+                sound: true,
+            },
+            trigger: null, // send immediately
+        });
     };
     
     // Load journey and sync ref — called from context so all screens benefit
@@ -56,14 +82,15 @@ export const PedometerProvider = ({ children }) => {
         });
         // TEMP to manually add steps
         setTimeout(async () => {
-            const bonusSteps = 5000000;
+            const bonusSteps = 100000;
 
             const saved = await AsyncStorage.getItem(STORAGE_KEY);
             const base = saved ? parseInt(saved, 10) : 0;
 
-            const newTotal = base - bonusSteps;
+            const newTotal = base + bonusSteps;
 
             setGlobalSteps(newTotal);
+            checkLandmarkNotifications(newTotal);
             await AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
             saveDailySteps(bonusSteps);
         }, 300);
@@ -80,6 +107,45 @@ export const PedometerProvider = ({ children }) => {
         }
     };
 
+    const updateStepMultiplier = async (value) => {
+        setStepMultiplier(value);
+        stepMultiplierRef.current = value;
+        await AsyncStorage.setItem('stepMultiplier', value.toString());
+    };
+
+    const checkLandmarkNotifications = (totalSteps) => {
+        const journey = selectedJourneyRef.current;
+        if (!journey) return;
+
+        // Landmark notifications
+        journey.bannerItems.forEach(landmark => {
+            if (
+                totalSteps >= landmark.unlockedAfterSteps &&
+                !notifiedLandmarksRef.current.has(landmark.id)
+            ) {
+                notifiedLandmarksRef.current.add(landmark.id);
+                sendLandmarkNotification(landmark);
+            }
+        });
+
+        // Journey complete notification
+        if (
+            totalSteps >= journey.totalSteps &&
+            !notifiedLandmarksRef.current.has('journey-complete')
+        ) {
+            notifiedLandmarksRef.current.add('journey-complete');
+
+            Notifications.scheduleNotificationAsync({
+                content: {
+                    title: '🎉 Journey Complete!',
+                    body: `You reached ${journey.goal} after ${journey.totalSteps.toLocaleString()} steps!`,
+                    sound: true,
+                },
+                trigger: null,
+            });
+        }
+    };
+
     useEffect(() => {
         let subscription = null;
 
@@ -87,7 +153,21 @@ export const PedometerProvider = ({ children }) => {
             try {
                 const saved = await AsyncStorage.getItem(STORAGE_KEY);
                 if (saved !== null) {
-                    setGlobalSteps(parseInt(saved, 10));
+                    const loadedSteps = parseInt(saved, 10);
+                    setGlobalSteps(loadedSteps);
+
+                    // Mark already reached landmarks so we don't re-notify for landmarks already passed
+                    AsyncStorage.getItem(JOURNEY_KEY).then(j => {
+                        if (j) {
+                            const journey = JSON.parse(j);
+                            const alreadyNotified = new Set(
+                                journey.bannerItems
+                                    .filter(l => loadedSteps >= l.unlockedAfterSteps)
+                                    .map(l => l.id)
+                            );
+                            notifiedLandmarksRef.current = alreadyNotified;
+                        }
+                    });
                 }
 
                 const isAvailable = await Pedometer.isAvailableAsync();
@@ -110,8 +190,6 @@ export const PedometerProvider = ({ children }) => {
                     if (delta > 0) {
                         // Add fractional steps to accumulator
                         fractionalAccumulator.current += delta * stepMultiplierRef.current;
-
-                        // Only count whole steps
                         const wholeSteps = Math.floor(fractionalAccumulator.current);
 
                         if (wholeSteps > 0) {
@@ -121,6 +199,7 @@ export const PedometerProvider = ({ children }) => {
                                 const newTotal = prevTotal + wholeSteps;
                                 AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
                                 saveDailySteps(wholeSteps);
+                                checkLandmarkNotifications(newTotal);
                                 return newTotal;
                             });
                         }

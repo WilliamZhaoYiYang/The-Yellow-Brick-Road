@@ -24,7 +24,9 @@
       "edgeToEdgeEnabled": true,
       "package": "com.idontwantanaccountfyou.TheYellowBrickRoad",
       "permissions": [
-        "android.permission.ACTIVITY_RECOGNITION"
+        "android.permission.ACTIVITY_RECOGNITION",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE"
       ]
     },
     "web": {
