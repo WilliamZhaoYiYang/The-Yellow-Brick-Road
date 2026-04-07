@@ -213,17 +213,17 @@ export const JOURNEYS = [
     },
     {
         id: '3',
-        title: 'Route 66',
-        image: 'https://picsum.photos/seed/route66/800/450',
-        totalSteps: 1400000,
-        goal: 'Santa Monica Pier',
+        title: 'Tongariro Alpine Crossing',
+        image: require('../assets/journeyImages/tac-0.jpg'),
+        totalSteps: 35000,
+        goal: 'Ketetahi Car Park',
         bannerItems: [
             {
-                id: 'r66-1',
+                id: 'tac-1',
                 unlockedAfterSteps: 0,
-                title: 'Chicago: Mile Zero',
-                image: 'https://picsum.photos/seed/r661/600/300',
-                detail: 'You\'re standing at the start of the Mother Road in Chicago. Nearly 2,500 miles of American highway stretch west to the Pacific Ocean.',
+                title: 'Mangatepopo Car Park',
+                image: require('../assets/journeyImages/tac-1.jpg'),
+                detail: 'You begin at the Mangatepopo car park, the volcanic peak of Ngāuruhoe looming dark against the sky. The track stretches roughly 20 kilometres of exposed, breathtaking terrain. This is no gentle stroll. This is walking through the bones of the earth.',
             },
             {
                 id: 'r66-2',
