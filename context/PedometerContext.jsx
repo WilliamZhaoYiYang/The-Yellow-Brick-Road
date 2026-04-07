@@ -82,7 +82,7 @@ export const PedometerProvider = ({ children }) => {
         });
         // TEMP to manually add steps
         // setTimeout(async () => {
-        //     const bonusSteps = 100000;
+        //     const bonusSteps = 4000000;
 
         //     const saved = await AsyncStorage.getItem(STORAGE_KEY);
         //     const base = saved ? parseInt(saved, 10) : 0;

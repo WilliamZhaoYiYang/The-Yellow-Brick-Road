@@ -69,7 +69,11 @@ const Journey = () => {
                     style={styles.journeyCard}
                 >
                     <Image
-                        source={{ uri: journey.image }}
+                        source={
+                            typeof journey.image === 'string'
+                            ? { uri: journey.image }
+                            : journey.image
+                        }
                         style={styles.thumbnail}
                         resizeMode="cover"
                     />
@@ -100,7 +104,11 @@ const Journey = () => {
                 <Pressable style={styles.modalBackdrop} onPress={() => setPendingJourney(null)}>
                     <Pressable style={styles.modalCard} onPress={() => {}}>
                         <Image
-                            source={{ uri: pendingJourney?.image }}
+                            source={
+                                typeof pendingJourney?.image === 'string'
+                                ? { uri: pendingJourney?.image }
+                                : pendingJourney?.image
+                            }
                             style={styles.modalImage}
                             resizeMode="cover"
                         />

@@ -2,7 +2,7 @@ export const JOURNEYS = [
     {
         id: '1',
         title: 'The Yellow Brick Road',
-        image: 'https://picsum.photos/seed/yellowbrick/800/450',
+        image: require('../assets/journeyImages/ybr-0.jpg'),
         totalSteps: 250000,
         goal: 'The Emerald City',
         description: 'A magical journey through the land of Oz. The road is paved and mostly flat, winding through poppy fields, enchanted forests, and friendly villages.' +
@@ -92,45 +92,122 @@ export const JOURNEYS = [
     },
     {
         id: '2',
-        title: 'The Shire to Mordor',
-        image: 'https://picsum.photos/seed/mordor/800/450',
-        totalSteps: 4000000,
+        title: 'The Fellowship of the Ring',
+        image: require('../assets/journeyImages/lotr-0.jpg'),
+        totalSteps: 2330000,
         goal: 'Mount Doom',
         bannerItems: [
             {
                 id: 'lotr-1',
                 unlockedAfterSteps: 0,
-                title: 'Leaving the Shire',
-                image: 'https://picsum.photos/seed/lotr1/600/300',
-                detail: 'The Shire disappears behind you as you set off on the most important journey in Middle-earth. The road goes ever on and on.',
+                title: 'An Unexpected Journey',
+                image: require('../assets/journeyImages/lotr-1.jpg'),
+                detail: 'The round green door closes behind you. Your pack feels heavier than expected. Inside, the fire is still warm, the kettle still on the hook. But the road is calling.\n' +
+                'You take one last look at the smoke curling from the chimney. Gandalf said you\'d be back. You\'re not so sure.\n' +
+                'No going back now.'
             },
             {
                 id: 'lotr-2',
-                unlockedAfterSteps: 500000,
-                title: 'Weathertop',
-                image: 'https://picsum.photos/seed/lotr2/600/300',
-                detail: 'You\'ve reached the ruins of Amon Sûl. The Nazgûl struck here, but the Fellowship pressed on. So do you.',
+                unlockedAfterSteps: 50000,
+                title: 'The Black Rider',
+                image: require('../assets/journeyImages/lotr-2.png'),
+                detail: 'The lane is quiet in the cool purples of dusk. Too quiet.\n' +
+                'On the crest of the hill you see a black shape on a black horse. The figure stops, sniffing the air, its face hidden by a black robe.\n' +
+                'You duck behind an old oak on the banks of the road, heart pounding. You wait until the hoofbeats fade. Then you run.'
             },
             {
                 id: 'lotr-3',
-                unlockedAfterSteps: 1200000,
-                title: 'The Mines of Moria',
-                image: 'https://picsum.photos/seed/lotr3/600/300',
-                detail: 'Deep beneath the mountains you walk where dwarves once thrived. You shall not pass... but you did.',
+                unlockedAfterSteps: 80000,
+                title: 'Lost in the Old Forest',
+                image: require('../assets/journeyImages/lotr-3.png'),
+                detail: 'To avoid the black riders, you decided to take the path through The Old Forest.\n' +
+                'The trees lean in close. Their roots twist across the path like knuckles. Every step feels watched.\n' +
+                'You\'ve passed that same crooked birch three times now. Or maybe it\'s a different one.\n' +
+                'A branch creaks behind you. You spin back. Nothing.\n' +
+                'The forest is herding you. But where? You pull your cloak tighter and keep walking. The only way out is through.'
             },
             {
                 id: 'lotr-4',
-                unlockedAfterSteps: 2000000,
-                title: 'Lothlórien',
-                image: 'https://picsum.photos/seed/lotr4/600/300',
-                detail: 'The golden forest of the elves offers rest and counsel. Galadriel\'s mirror shows many things — but your path forward is clear.',
+                unlockedAfterSteps: 130000,
+                title: 'At Bree',
+                image: require('../assets/journeyImages/lotr-4.png'),
+                detail: 'The gate looms high and dark. A creaking sign sways in the moonlight: BREE. ' +
+                'Lamplight spills from the Prancing Pony\'s windows. Hoof-churned mud, voices rumbling inside, the smell of woodsmoke and ale. You pull your hood lower and slip through the gate.\n' +
+                'The gatekeeper nods but doesn\'t smile.\n' +
+                '\"You\'ll want a room before dark," he mutters. "Strangers aren\'t the only ones on the road tonight.\"\n' +
+                'You hurry towards the inn.'
             },
             {
                 id: 'lotr-5',
-                unlockedAfterSteps: 3000000,
-                title: 'The Plains of Gorgoroth',
-                image: 'https://picsum.photos/seed/lotr5/600/300',
-                detail: 'The desolate wastes of Mordor surround you. Every step here is a feat of will. Mount Doom burns in the distance.',
+                unlockedAfterSteps: 350000,
+                title: 'Attack at Weathertop',
+                image: require('../assets/journeyImages/lotr-5.jpg'),
+                detail: 'The crown of the hill is cold and broken old stones and older bones. Five shadows rise from the dark, hoods empty, voices like rusted knives.\n' +
+                'Pain. Cold like drowning. A shard of ice drives into your shoulder. You swing your own blade blindly and they scatter. For now.\n' +
+                'Strider finds you slumped against the stones, \"They stabbed you with a Morgul blade,\" hey says. \"We must hurry. The wound will not wait.\"'
+            },
+            {
+                id: 'lotr-6',
+                unlockedAfterSteps: 800000,
+                title: 'A Short Rest',
+                image: require('../assets/journeyImages/lotr-6.png'),
+                detail: 'The pass is barely clinging to the cliff. Your legs give out just as the last bridge comes into view: horses, banners, the sound of falling water. Elven hands catch you before you fall.\n' +
+                'You wake in a soft bed. Sunlight through carved stone. A voice tells you the river rose like a galloping herd, the waves sweeping the Black Riders away. Gone. Drowned. The Nine are no more.\n' +
+                'You touch your shoulder. The wound is cool now, almost healed. You let out a sigh, you\'re safe for the first time in many weeks.'
+            },
+            {
+                id: 'lotr-7',
+                unlockedAfterSteps: 2000000,
+                title: 'The Pass of Caradhras',
+                image: require('../assets/journeyImages/lotr-7.png'),
+                detail: 'The air thins to a knife\'s edge. Snow swirls within the dark clouds surrounding two jagged peaks. Caradhras the Cruel, the dwarves call it.\n' +
+                'Your boots crunch through fresh powder. Every breath hurts. Behind you, the lowlands have vanished. Ahead is only white and rock and wind that screams like the voices of the damned trapped on these peaks.'
+            },
+            {
+                id: 'lotr-8',
+                unlockedAfterSteps: 2100000,
+                title: 'At the Gates of Moria',
+                image: require('../assets/journeyImages/lotr-8.png'),
+                detail: 'Caradhras defeated you. Snow buried the path, wind howled you back, and the mountain itself seemed to shove you down.\n' +
+                'Now you stand before a sheer cliff wall. In the dim light, two great trees carved from ancient stone flank a doorway that has no door. Faint silver lines trace a design—a star, an anvil, a hammer.\n' +
+                '\"Speak, friend, and enter,\" Gandalf murmurs, studying the letters. The gate says nothing back.\n' +
+                'Somewhere beneath your boots, a whole world sleeps in darkness.'
+            },
+            {
+                id: 'lotr-9',
+                unlockedAfterSteps: 2200000,
+                title: 'Mirrormere',
+                image: require('../assets/journeyImages/lotr-9.jpg'),
+                detail: 'Moria took him. The bridge crumbled. The fiery beast fell—and Gandalf with it. You ran not daring to look back. The drums echoed in your skull for three days.\n' +
+                'Now you kneel beside still water. Mirrormere. The lake is so clear it holds the stars upside down, even in daylight. Snow-capped peaks stare back at you from the depths.\n' +
+                'Behind you, the others wait in silence. Ahead, the woods of Lothlórien. But here, just for a breath, the world holds still.\n' +
+                'You wish he could have seen this.'
+            },
+            {
+                id: 'lotr-10',
+                unlockedAfterSteps: 2250000,
+                title: 'Meeting in Lothlórien',
+                image: require('../assets/journeyImages/lotr-10.png'),
+                detail: 'The trees part like curtains. Silvered light spills through gilded leaves. Above you, platforms of white wood nestle in the branches, a city built atop the trees.\n' +
+                'An elf descends from above, robes pale as moonlight.\n' +
+                '\"The Lady Galadriel awaits,\" she says softly. \"Lay down your burden. No evil enters here.\"\n' +
+                'The air smells of honey and rain. A single yellow leaf drifts gently onto your shoulder. You follow the light.'
+            },
+            {
+                id: 'lotr-11',
+                unlockedAfterSteps: 2300000,
+                title: 'The Pillars of Kings',
+                image: require('../assets/journeyImages/lotr-11.png'),
+                detail: 'The river narrowed and the cliffs rose up. Two colossal kings carved from stone, their outstretched hands raised palm forward in a silent warning, or perhaps a welcome, that had endured for thousands of years.\n' +
+                'Your boat drifted between them, small and silent, and you felt the weight of that gaze pressing down like a hand on your chest.'
+            },
+            {
+                id: 'lotr-12',
+                unlockedAfterSteps: 2330000,
+                title: 'The Breaking of the Fellowship',
+                image: require('../assets/journeyImages/lotr-12.png'),
+                detail: 'The horn of Boromir sounded, and then everything fell apart. You watched as the fellowship collapse, the others going willingly, or unwillingly, their own way.\n' +
+                'You stand at the eastern edge of the forest, the Emyn Muil rising grey and unforgiving ahead. Mordor is out there, waiting. You grip the Ring beneath your shirt, feel its weight like a stone around your neck, and step forward into the empty land.'
             },
         ],
     },
