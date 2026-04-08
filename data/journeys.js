@@ -223,36 +223,81 @@ export const JOURNEYS = [
                 unlockedAfterSteps: 0,
                 title: 'Mangatepopo Car Park',
                 image: require('../assets/journeyImages/tac-1.jpg'),
-                detail: 'You begin at the Mangatepopo car park, the volcanic peak of Ngāuruhoe looming dark against the sky. The track stretches roughly 20 kilometres of exposed, breathtaking terrain. This is no gentle stroll. This is walking through the bones of the earth.',
+                detail: 'You begin at the Mangatepopo car park, the volcanic peak of Ngāuruhoe looming dark against the sky. Behind you, you can see the peak of Taranaki reveal itself from the mist over a hundred kilometres away in the distance. ' + 
+                'The track stretches 20 kilometres ahead of exposed, breathtaking terrain. This will be no gentle stroll, you think to yourself.',
             },
             {
-                id: 'r66-2',
-                unlockedAfterSteps: 280000,
-                title: 'St. Louis Gateway Arch',
-                image: 'https://picsum.photos/seed/r662/600/300',
-                detail: 'The iconic arch marks the Gateway to the West. You\'ve crossed Missouri and the great Mississippi River lies behind you.',
+                id: 'tac-2',
+                unlockedAfterSteps: 2000,
+                title: 'Through Mangatepopo Valley',
+                image: require('../assets/journeyImages/tac-2.jpg'),
+                detail: 'The wooden planked path winds through tussock and low scrub, a stream chattering somewhere to your left. The abundance of the invasive heather shrubs a reminder of how humans have altered this island\'s landscape.\n' +
+                'The sun is still low, painting the volcanic slopes orange. You can smell sulphur already, faint but unmistakable, a sign, or perhaps a warning, that the mountain is only sleeping.',
             },
             {
-                id: 'r66-3',
-                unlockedAfterSteps: 560000,
-                title: 'Oklahoma Heartland',
-                image: 'https://picsum.photos/seed/r663/600/300',
-                detail: 'Rolling plains and roadside diners define this stretch. Route 66 was a lifeline for Dust Bowl migrants heading west — now it\'s yours too.',
+                id: 'tac-3',
+                unlockedAfterSteps: 5000,
+                title: 'Rest at Soda Springs',
+                image: require('../assets/journeyImages/tac-3.jpg'),
+                detail: 'A side path leads you to a thin waterfall spilling over dark lava rock. The water smells of minerals and runs cold through your fingers. Resting on a small boulder, ' +
+                'you take a swig from your water bottle and watch a pair of pipit birds hop between stones. The real climb is still ahead.',
             },
             {
-                id: 'r66-4',
-                unlockedAfterSteps: 980000,
-                title: 'Grand Canyon Country',
-                image: 'https://picsum.photos/seed/r664/600/300',
-                detail: 'Arizona\'s red rock landscape surrounds you. The Grand Canyon sits just to the north — one of the natural wonders of the world.',
+                id: 'tac-4',
+                unlockedAfterSteps: 8500,
+                title: 'Struggling up Devil\'s Staircase',
+                image: require('../assets/journeyImages/tac-4.jpg'),
+                detail: 'The track tilts upward sharply in endless wooden steps built into the ridge. Your thighs burn. Your breath comes in short pulls. ' +
+                'Behind you, the valley drops away. Ahead, even more steps. Someone passes you and says "not much further." They are lying.',
             },
             {
-                id: 'r66-5',
-                unlockedAfterSteps: 1250000,
-                title: 'Mojave Desert',
-                image: 'https://picsum.photos/seed/r665/600/300',
-                detail: 'The Californian desert stretches endlessly. The heat shimmers off the asphalt, but Santa Monica and the ocean are almost within reach.',
+                id: 'tac-5',
+                unlockedAfterSteps: 12000,
+                title: 'South Crater',
+                image: require('../assets/journeyImages/tac-5.jpg'),
+                detail: 'You crest the staircase and find yourself in a flat, alien bowl of reddish-brown gravel, surrounded by ancient craters. The wind cuts straight through your jacket. This is still better than the devil\'s staircase you think to yourself. ' +
+                'Ngāuruhoe looms to your right, its cone perfect and threatening. You stand in the middle of the crater and feel very, very small.',
             },
+            {
+                id: 'tac-6',
+                unlockedAfterSteps: 14500,
+                title: 'Atop Red Crater',
+                image: require('../assets/journeyImages/tac-6.jpg'),
+                detail: 'The highest point of the crossing. Steam hisses from vents at your feet, the air thick with the smell of rotten eggs. ' +
+                'The view splits in two directions, west to Mount Taranaki on a clear day, east to the desert plains. You pull out a snack and eat it while the mountain breathes beneath you.'
+            },
+            {
+                id: 'tac-7',
+                unlockedAfterSteps: 17000,
+                title: 'On the Banks of Emerald Lakes',
+                image: require('../assets/journeyImages/tac-7.jpg'),
+                detail: 'The descent is loose scree. Each step slides, you learn to be careful. Then the colour hits you: three small lakes glowing bright turquoise against the grey volcanic rock, ' +
+                'stained by minerals leaching from the ground. You sit on a boulder and just stare. It doesn\'t look real. It looks like someone dyed the water.'
+            },
+            {
+                id: 'tac-8',
+                unlockedAfterSteps: 19500,
+                title: 'Blue Lake',
+                image: require('../assets/journeyImages/tac-8.jpg'),
+                detail: 'The track flattens out. The Emerald Lakes disappear behind a ridge, and Blue Lake opens before you. Sacred, still, and impossibly deep. A sign asks you not to enter the water. ' +
+                'You don\'t need to. Just looking feels like enough.'
+            },
+            {
+                id: 'tac-9',
+                unlockedAfterSteps: 22000,
+                title: 'The Ketetahi Side',
+                image: require('../assets/journeyImages/tac-9.jpg'),
+                detail: 'The vegetation returns. Low shrubs, then tussock, then proper bushes. You cross a small stream that descends down the cliff on the right side of the mountain. ' +
+                'You can see Lake Taupo from this height, a bee buzzes lazily around a flower as you stop to rest and admire the view.'
+            },
+            {
+                id: 'tac-10',
+                unlockedAfterSteps: 35000,
+                title: 'Ketetahi Car Park',
+                image: require('../assets/journeyImages/tac-10.jpg'),
+                detail: 'The bush opens up and - mercifully - you see the car park, a row of tired-looking vans, and a handful of walkers stretching their legs. ' +
+                'You stop at the signpost and touch the wood. Your legs ache. Your lips are cracked from the wind. But you crossed it. The mountain let you pass.'
+            },            
         ],
     },
 ];

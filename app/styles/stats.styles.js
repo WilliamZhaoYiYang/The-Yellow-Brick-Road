@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        bottom: 40,
+        bottom: 70,
         alignSelf: 'center',
         backgroundColor: '#e9d8ab',
         paddingVertical: 14,

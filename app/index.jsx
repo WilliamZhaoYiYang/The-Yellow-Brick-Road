@@ -238,7 +238,7 @@ const Home = () => {
                         </Text>
                         {nextLandmark && (
                             <Text style={styles.nextLandmark}>
-                                📍 {(nextLandmark.unlockedAfterSteps - displayValue).toLocaleString()} steps to {nextLandmark.title}
+                                📍 {(nextLandmark.unlockedAfterSteps - displayValue).toLocaleString()} steps until {nextLandmark.title}
                             </Text>
                         )}
                     </>

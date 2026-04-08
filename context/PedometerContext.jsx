@@ -81,19 +81,20 @@ export const PedometerProvider = ({ children }) => {
             }
         });
         // TEMP to manually add steps
-        // setTimeout(async () => {
-        //     const bonusSteps = 4000000;
 
-        //     const saved = await AsyncStorage.getItem(STORAGE_KEY);
-        //     const base = saved ? parseInt(saved, 10) : 0;
+        setTimeout(async () => {
+            const bonusSteps = 1000000;
 
-        //     const newTotal = base + bonusSteps;
+            const saved = await AsyncStorage.getItem(STORAGE_KEY);
+            const base = saved ? parseInt(saved, 10) : 0;
 
-        //     setGlobalSteps(newTotal);
-        //     checkLandmarkNotifications(newTotal);
-        //     await AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
-        //     saveDailySteps(bonusSteps);
-        // }, 300);
+            const newTotal = base + bonusSteps;
+
+            setGlobalSteps(newTotal);
+            checkLandmarkNotifications(newTotal);
+            await AsyncStorage.setItem(STORAGE_KEY, newTotal.toString());
+            saveDailySteps(bonusSteps);
+        }, 300);
     }, []);
 
     const resetSteps = async () => {
