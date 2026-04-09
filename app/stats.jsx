@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router'
 import { VictoryLine, VictoryChart, VictoryAxis, VictoryScatter, VictoryLabel } from 'victory-native'
 import Card from '../components/card'
 import { usePedometerContext } from '../context/PedometerContext'
-import styles from './styles/stats.styles';
+import styles from '../styles/stats.styles';
 
 const { width } = Dimensions.get('window');
 const CARD_MARGIN = 20;

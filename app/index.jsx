@@ -2,7 +2,7 @@ import { StyleSheet, Pressable, Text, View, Alert, Animated, FlatList, Modal, Di
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { router, useFocusEffect } from 'expo-router';
-import styles from './styles/index.styles';
+import styles from '../styles/index.styles';
 import Card from '../components/card';
 import { usePedometerContext } from '../context/PedometerContext';
 

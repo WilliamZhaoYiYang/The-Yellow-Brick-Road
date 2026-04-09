@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { JOURNEYS } from '../data/journeys';
-import styles from './styles/journey.styles';
+import styles from '../styles/journey.styles';
 import Card from '../components/card';
 import { usePedometerContext } from '../context/PedometerContext';
 
